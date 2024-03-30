@@ -257,12 +257,12 @@ namespace New_SSQE
                         }
                     }
                     catch (Exception ex)
-                    { ActionLogging.Register($"Failed to update setting - {setting.Key} - {ex.GetType().Name}\n{ex.StackTrace}", "WARN"); }
+                    { ActionLogging.Register($"Failed to update setting - {setting.Key}", "WARN", ex); }
                 }
             }
             catch (Exception ex)
             {
-                ActionLogging.Register($"Failed to load settings - {ex.GetType().Name}\n{ex.StackTrace}", "WARN");
+                ActionLogging.Register($"Failed to load settings", "WARN", ex);
                 Reset();
             }
 

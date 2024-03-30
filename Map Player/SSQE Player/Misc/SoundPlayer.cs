@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using Un4seen.Bass;
+﻿using Un4seen.Bass;
 using Un4seen.Bass.AddOn.Fx;
 
 namespace SSQE_Player
@@ -22,8 +20,8 @@ namespace SSQE_Player
         {
             if (files.TryGetValue(fileName, out var value))
             {
-                var s = Bass.BASS_StreamCreateFile(value, 0, 0, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_STREAM_PRESCAN | BASSFlag.BASS_FX_FREESOURCE);
-                s = BassFx.BASS_FX_TempoCreate(s, BASSFlag.BASS_STREAM_PRESCAN | BASSFlag.BASS_STREAM_AUTOFREE | BASSFlag.BASS_FX_FREESOURCE | BASSFlag.BASS_MUSIC_AUTOFREE);
+                var s = Bass.BASS_StreamCreateFile(value, 0, 0, BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_MUSIC_PRESCAN);
+                s = BassFx.BASS_FX_TempoCreate(s, BASSFlag.BASS_MUSIC_AUTOFREE | BASSFlag.BASS_FX_FREESOURCE);
 
                 Bass.BASS_ChannelSetAttribute(s, BASSAttribute.BASS_ATTRIB_VOL, fileName == Settings.settings["hitSound"] ? Volume : 0.035f);
 

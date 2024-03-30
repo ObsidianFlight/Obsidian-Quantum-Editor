@@ -65,11 +65,9 @@ namespace New_SSQE.Types
 
             editor.Bookmarks = bookmarks.ToList();
 
-            editor.Tempo = tempo;
-            editor.Zoom = zoom;
-
             editor.FileName = fileName;
             editor.SoundID = soundID;
+            editor.Zoom = zoom;
 
             if (loadAudio)
             {
@@ -78,7 +76,8 @@ namespace New_SSQE.Types
                 Settings.settings["currentTime"].Step = (float)editor.MusicPlayer.TotalTime.TotalMilliseconds / 2000f;
             }
 
-            editor.MusicPlayer.Tempo = tempo;
+            Settings.settings["tempo"].Value = tempo;
+            editor.SetTempo(tempo);
 
             Settings.settings["currentTime"].Value = currentTime;
             Settings.settings["beatDivisor"].Value = beatDivisor;
@@ -114,7 +113,7 @@ namespace New_SSQE.Types
 
             bookmarks = editor.Bookmarks.ToList();
 
-            tempo = editor.Tempo;
+            tempo = Settings.settings["tempo"].Value;
             zoom = editor.Zoom;
 
             fileName = editor.FileName;

@@ -264,7 +264,7 @@ namespace New_SSQE
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to parse beatmap\n[ OSU : {ex.GetType().Name} ]", "Warning", "OK");
-                ActionLogging.Register($"Failed to parse beatmap - OSU - {ex.GetType().Name}\n{ex.StackTrace}", "WARN");
+                ActionLogging.Register($"Failed to parse beatmap - OSU", "WARN", ex);
             }
         }
 
@@ -429,7 +429,7 @@ namespace New_SSQE
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to parse beatmap\n[ ADOFAI : {ex.GetType().Name} ]", "Warning", "OK");
-                ActionLogging.Register($"Failed to parse beatmap - ADOFAI - {ex.GetType().Name}\n{ex.StackTrace}", "WARN");
+                ActionLogging.Register($"Failed to parse beatmap - ADOFAI", "WARN", ex);
             }
         }
 
@@ -495,7 +495,7 @@ namespace New_SSQE
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to parse beatmap\n[ CH : {ex.GetType().Name} ]", "Warning", "OK");
-                ActionLogging.Register($"Failed to parse beatmap - CH - {ex.GetType().Name}\n{ex.StackTrace}", "WARN");
+                ActionLogging.Register($"Failed to parse beatmap - CH", "WARN", ex);
             }
         }
     }

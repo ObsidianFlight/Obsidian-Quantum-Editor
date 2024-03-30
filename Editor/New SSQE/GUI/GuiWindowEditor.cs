@@ -127,7 +127,7 @@ namespace New_SSQE.GUI
         private string navEnabled = "";
         private bool started = false;
 
-        private bool rhythia = false;
+        private readonly bool rhythia = false;
 
         public GuiWindowEditor() : base(0, 0, MainWindow.Instance.ClientSize.X, MainWindow.Instance.ClientSize.Y)
         {
@@ -539,7 +539,7 @@ namespace New_SSQE.GUI
                             }
                             catch (Exception ex)
                             {
-                                ActionLogging.Register($"Failed to start Rhythia - {ex.GetType().Name}\n{ex.StackTrace}", "WARN");
+                                ActionLogging.Register($"Failed to start Rhythia", "WARN", ex);
                                 ShowToast("FAILED TO START RHYTHIA", Settings.settings["color1"]);
                             }
                         }

@@ -29,17 +29,9 @@ namespace New_SSQE
                 ActionLogging.Register("[Error encountered in application]", "ERROR");
                 var logs = string.Join('\n', ActionLogging.Logs);
 
-                Exception? ex = e;
+                var text = @$"// whoops
 
-                var emsg = "";
-
-                while (ex != null)
-                {
-                    emsg += $"\n\n{e.Message}\n\n{e.StackTrace ?? "[StackTrace was null]"}";
-                    ex = ex.InnerException;
-                }
-
-                var text = @$"// whoops{emsg}
+{ActionLogging.ExtractExceptionInfo(e)}
 
 |******************|
 |  POSSIBLE FIXES  |

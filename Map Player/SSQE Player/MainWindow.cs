@@ -23,6 +23,7 @@ namespace SSQE_Player
         public static readonly Vector3 NoteSize = Vector3.One * 0.875f;
         public static readonly Vector3 CursorSize = new(0.275f, 0.275f, 0f);
         public Vector3 CursorPos = new();
+        public Vector3 LastCursorPos = new();
 
         public GuiWindowMain CurrentWindow;
         public Camera Camera = new();
@@ -109,6 +110,8 @@ namespace SSQE_Player
 
             if (MusicPlayer.IsPlaying)
                 Settings.settings["currentTime"].Value = (float)MusicPlayer.CurrentTime.TotalMilliseconds;
+
+            LastCursorPos = CursorPos;
 
             Camera.Update(MouseDelta.X, MouseDelta.Y);
             CurrentWindow?.Render((float)args.Time);

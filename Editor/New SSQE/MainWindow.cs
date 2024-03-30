@@ -18,8 +18,6 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Mathematics;
 using SkiaSharp;
-using Discord;
-using Activity = Discord.Activity;
 using MouseButton = OpenTK.Windowing.GraphicsLibraryFramework.MouseButton;
 using OpenTK.Windowing.Common.Input;
 using System.Runtime.InteropServices;
@@ -27,7 +25,8 @@ using BigInteger = System.Numerics.BigInteger;
 using System.IO.Compression;
 using OpenTK.Graphics;
 using New_SSQE.Types;
-using AvaloniaEdit;
+using DiscordRPC;
+using DiscordRPC.Logging;
 
 namespace New_SSQE
 {
@@ -71,9 +70,8 @@ namespace New_SSQE
 
         public static Avalonia.Controls.Window DefaultWindow = new BackgroundWindow();
 
-        private Discord.Discord discord;
-        private ActivityManager activityManager;
-        private bool discordEnabled = File.Exists("discord_game_sdk.dll");
+        private DiscordRpcClient discord;
+        private bool discordEnabled = true;
 
 
 
@@ -168,16 +166,16 @@ namespace New_SSQE
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
         }
 
-        private new void UpdateFrame(FrameEventArgs args)
+        private new void UpdateFrame()
         {
             if (discordEnabled)
-                try { discord.RunCallbacks(); } catch { }
+                try { discord.Invoke(); } catch { }
 
             ExportSSPM.UpdateID();
         }
 
         private double frameTime;
-        private const double updateFrequency = 1 / 20.0;
+        private const double updateFrequency = 1 / 10.0;
 
         protected override void OnRenderFrame(FrameEventArgs args)
         {
@@ -187,7 +185,7 @@ namespace New_SSQE
             frameTime += args.Time;
             if (frameTime > updateFrequency)
             {
-                UpdateFrame(new FrameEventArgs(frameTime));
+                UpdateFrame();
                 frameTime = 0;
             }
 
@@ -207,7 +205,7 @@ namespace New_SSQE
             }
             catch (Exception ex)
             {
-                ActionLogging.Register($"Failed to render frame - {ex.GetType().Name}\n{ex.StackTrace}", "ERROR");
+                ActionLogging.Register($"Failed to render frame", "ERROR", ex);
             }
 
             if (CurrentMap != prevMap && CurrentWindow is GuiWindowEditor editor)
@@ -416,7 +414,11 @@ namespace New_SSQE
                                     editor.ShowToast("COPIED NOTES", Settings.settings["color1"]);
                                 }
                             }
-                            catch { editor.ShowToast("FAILED TO COPY", Settings.settings["color1"]); }
+                            catch (Exception ex)
+                            {
+                                ActionLogging.Register("Failed to copy notes", "WARN", ex);
+                                editor.ShowToast("FAILED TO COPY", Settings.settings["color1"]);
+                            }
 
                             break;
 
@@ -478,7 +480,11 @@ namespace New_SSQE
                                     });
                                 }
                             }
-                            catch { editor.ShowToast("FAILED TO PASTE", Settings.settings["color1"]); }
+                            catch (Exception ex)
+                            {
+                                ActionLogging.Register("Failed to paste notes", "WARN", ex);
+                                editor.ShowToast("FAILED TO PASTE", Settings.settings["color1"]);
+                            }
 
                             break;
 
@@ -511,7 +517,11 @@ namespace New_SSQE
                                     editor.ShowToast("CUT NOTES", Settings.settings["color1"]);
                                 }
                             }
-                            catch { editor.ShowToast("FAILED TO CUT", Settings.settings["color1"]); }
+                            catch (Exception ex)
+                            {
+                                ActionLogging.Register("Failed to cut notes", "WARN", ex);
+                                editor.ShowToast("FAILED TO CUT", Settings.settings["color1"]);
+                            }
 
                             break;
 
@@ -767,6 +777,9 @@ namespace New_SSQE
             {
                 MusicPlayer.Dispose();
                 CurrentWindow?.Dispose();
+
+                if (discordEnabled)
+                    try { discord.Dispose(); } catch { }
             }
 
             closing = !e.Cancel;
@@ -1263,7 +1276,7 @@ namespace New_SSQE
             catch (Exception ex)
             {
                 MessageBox.Show("Failed to load map data, exit and check '*\\logs.txt' for more info", "Warning", "OK");
-                ActionLogging.Register($"Failed to load map data - {ex.Message}\n\n{ex.StackTrace}\n\n", "WARN");
+                ActionLogging.Register($"Failed to load map data", "WARN", ex);
                 Console.WriteLine(ex);
 
                 return false;
@@ -1926,8 +1939,22 @@ namespace New_SSQE
 
             try
             {
-                discord = new Discord.Discord(1067849747710345346, (ulong)CreateFlags.NoRequireDiscord);
-                activityManager = discord.GetActivityManager();
+                discord = new("1067849747710345346", -1)
+                {
+                    Logger = new ConsoleLogger() { Level = LogLevel.Warning }
+                };
+
+                discord.OnReady += (sender, e) =>
+                {
+                    ActionLogging.Register($"Discord integration ready");
+                };
+
+                discord.OnPresenceUpdate += (sender, e) =>
+                {
+                    ActionLogging.Register($"Discord integration updated with activity '{e.Presence.State}'");
+                };
+
+                discord.Initialize();
             }
             catch { discordEnabled = false; }
         }
@@ -1937,21 +1964,12 @@ namespace New_SSQE
             if (!discordEnabled)
                 return;
 
-            var activity = new Activity
+            discord.SetPresence(new RichPresence
             {
                 State = status,
                 Details = $"Version {Assembly.GetExecutingAssembly().GetName().Version}",
-                Timestamps = { Start = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() },
-                Assets = { LargeImage = "logo" },
-                Instance = true,
-            };
-
-            activityManager.UpdateActivity(activity, (result) =>
-            {
-                Console.WriteLine($"{(result == Result.Ok ? "Activity success" : "Activity failed")}");
-
-                if (result != Result.Ok)
-                    ActionLogging.Register($"Failed to update Discord Rich Presence activity - {status}", "WARN");
+                Timestamps = new() { Start = DateTime.UtcNow },
+                Assets = new() { LargeImageKey = "logo" }
             });
         }
 

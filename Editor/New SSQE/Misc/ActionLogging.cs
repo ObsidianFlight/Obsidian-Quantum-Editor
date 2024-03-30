@@ -9,8 +9,11 @@ namespace New_SSQE
     {
         public static List<string> Logs = new();
 
-        public static void Register(string log, string tag = "INFO")
+        public static void Register(string log, string tag = "INFO", Exception? ex = null)
         {
+            if (ex != null)
+                log += $"\n\n{ExtractExceptionInfo(ex)}";
+
             var timestamp = DateTime.Now;
             var logF = $"[{timestamp} - {tag.ToUpper()}] {log}";
 
@@ -21,6 +24,21 @@ namespace New_SSQE
                 var logs = string.Join('\n', Logs);
                 File.WriteAllText("logs-debug.txt", logs);
             }
+        }
+
+        public static string ExtractExceptionInfo(Exception e)
+        {
+            Exception? ex = e;
+
+            List<string> msg = new();
+
+            while (ex != null)
+            {
+                msg.Add($"{e.Message}\n\n{e.StackTrace ?? "[StackTrace was null]"}");
+                ex = ex.InnerException;
+            }
+
+            return string.Join("\n\n", msg);
         }
     }
 }

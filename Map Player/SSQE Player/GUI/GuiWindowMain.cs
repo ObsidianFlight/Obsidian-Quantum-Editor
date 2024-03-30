@@ -202,12 +202,13 @@ namespace SSQE_Player.GUI
             {
                 var note = cubes[i];
                 var timeDiff = note.Ms - currentTime;
+                var prevZ = note.Z;
                 note.Z = NoteSpeed * timeDiff / 1000f;
 
                 if (note.Z <= 0)
                 {
                     Vector3 pos = (note.X - 1, note.Y - 1, note.Z);
-                    var hovering = !Paused && IsOverNote(pos, zHitbox);
+                    var hovering = !Paused && IsOverNote(pos, zHitbox, prevZ);
                     var passed = hovering || note.Z < -zHitbox;
 
                     if (hovering)
@@ -360,8 +361,16 @@ namespace SSQE_Player.GUI
             combo = 0;
         }
 
-        private bool IsOverNote(Vector3 notePos, float zHitbox)
+        private const int LEFT = 1;
+        private const int RIGHT = 2;
+        private const int BOTTOM = 4;
+        private const int TOP = 8;
+
+        private static bool IsOverNote(Vector3 notePos, float zHitbox, float prevZ)
         {
+            if (prevZ + zHitbox < 0 || notePos.Z > 0)
+                return false;
+
             var cursorSize = MainWindow.CursorSize;
             var noteSize = MainWindow.NoteSize;
 
@@ -371,10 +380,74 @@ namespace SSQE_Player.GUI
             var max = notePos + halfMax;
             var min = notePos - halfMin;
 
+            var prevVec = MainWindow.Instance.LastCursorPos;
             var vec = MainWindow.Instance.CursorPos;
 
-            return vec.X >= min.X && vec.Y >= min.Y && vec.Z >= min.Z &&
-                   vec.X <= max.X && vec.Y <= max.Y && vec.Z <= notePos.Z + zHitbox;
+            var start = prevZ / (notePos.Z - prevZ);
+            var end = zHitbox / (notePos.Z - prevZ);
+
+            start = Math.Clamp(start, 0, 1);
+            end = Math.Clamp(end, 0, 1);
+
+            var v1 = prevVec + (vec - prevVec) * start;
+            var v2 = prevVec + (vec - prevVec) * end;
+
+            if ((v1.X < min.X && v2.X < min.X) ||
+                (v1.X > max.X && v2.X > max.X) ||
+                (v1.Y < min.Y && v2.Y < min.Y) ||
+                (v1.Y > max.Y && v2.Y < max.Y))
+                return false;
+
+            float m1 = (v2.Y - v1.Y) / (v2.X - v1.X);
+            float m2 = 1 / m1;
+
+            // vec 1 clamping
+            if (v1.X < min.X)
+            {
+                v1.X = min.X;
+                v1.Y += m1 * (min.X - v1.X);
+            }
+            else if (v1.X > max.X)
+            {
+                v1.X = max.X;
+                v1.Y += m1 * (max.X - v1.X);
+            }
+
+            if (v1.Y < min.Y)
+            {
+                v1.X += m2 * (min.Y - v1.X);
+                v1.Y = min.Y;
+            }
+            else if (v1.Y > max.Y)
+            {
+                v1.X += m2 * (max.Y - v1.X);
+                v1.Y = max.Y;
+            }
+
+            // vec 2 clamping
+            if (v2.X < min.X)
+            {
+                v2.X = min.X;
+                v2.Y = v1.Y + m1 * (min.X - v1.X);
+            }
+            else if (v2.X > max.X)
+            {
+                v2.X = max.X;
+                v2.Y = v1.Y + m1 * (max.X - v1.X);
+            }
+
+            if (v2.Y < min.Y)
+            {
+                v2.X = v1.X + m2 * (min.Y - v1.X);
+                v2.Y = min.Y;
+            }
+            else if (v2.Y > max.Y)
+            {
+                v2.X = v1.X + m2 * (max.Y - v1.X);
+                v2.Y = max.Y;
+            }
+
+            return v1.X >= min.X && v2.X >= min.X && v1.X <= max.X && v2.X <= max.X;
         }
 
         public void Reset()
