@@ -52,6 +52,16 @@ namespace SSQE_Player
 
             VSync = VSyncMode.Off;
 
+            CursorState = CursorState.Grabbed;
+            SetInputMode();
+
+            Shader.Init();
+            FontRenderer.Init();
+
+            Settings.Load();
+
+            Instance = this;
+
             if (Settings.settings["limitPlayerFPS"])
             {
                 if (Settings.settings["useVSync"])
@@ -65,18 +75,6 @@ namespace SSQE_Player
                     UpdateFrequency = RenderFrequency;
                 }
             }
-
-            CursorState = CursorState.Grabbed;
-            SetInputMode();
-
-            Shader.Init();
-            FontRenderer.Init();
-
-            // icon broken idk
-
-            Instance = this;
-
-            Settings.Load();
 
             if (!Settings.settings["fullscreenPlayer"])
                 SwitchFullscreen();
