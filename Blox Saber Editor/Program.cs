@@ -56,11 +56,9 @@ namespace Sound_Space_Editor
 
 			try
 			{
-				long offset = 0;
-
 				var launcherDir = Environment.CurrentDirectory;
 
-				w = new EditorWindow(offset, launcherDir);
+				w = new EditorWindow(launcherDir);
 			}
 			catch(Exception e)
 			{

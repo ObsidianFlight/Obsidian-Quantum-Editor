@@ -491,5 +491,10 @@ namespace Sound_Space_Editor
         {
             inst = null;
         }
+
+        private void PointList_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
     }
 }

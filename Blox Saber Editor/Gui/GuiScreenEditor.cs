@@ -1,22 +1,18 @@
-﻿using System;
-using System.Drawing;
-using System.Globalization;
-using System.Linq;
-using System.Windows.Forms;
-using Sound_Space_Editor.Properties;
-using OpenTK;
+﻿using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
+using Sound_Space_Editor.Properties;
+using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using System.Linq;
 using System.Numerics;
-using Sound_Space_Editor;
+using System.Windows.Forms;
 
 namespace Sound_Space_Editor.Gui
 {
-	class GuiScreenEditor : GuiScreen
+    class GuiScreenEditor : GuiScreen
 	{
 		public GuiScreen GuiScreen { get; private set; }
 
@@ -56,7 +52,7 @@ namespace Sound_Space_Editor.Gui
         public readonly GuiButton PlayButton;
 
         public static GuiLabel playLabel = new GuiLabel(0, 0, "If you hold SHIFT, the map will be played from the current time", "main", 15);
-        public static GuiLabel noplayLabel = new GuiLabel(0, 0, "Not available, beacuse the map is using an ROBLOX audio.", "main", 15);
+        public static GuiLabel noplayLabel = new GuiLabel(0, 0, "Not available, because the map is using a ROBLOX audio.", "main", 15);
 
         public readonly GuiButton JumpMSButton;
 		public readonly GuiButton RotateButton;
@@ -71,9 +67,44 @@ namespace Sound_Space_Editor.Gui
 		public readonly GuiButton HFlip;
 		public readonly GuiButton VFlip;
 
+		public readonly GuiButton CreateColorset;
+		public readonly GuiButton OpenColorset;
+		public readonly GuiButton ExportColorset; //New method to export txt file when ready.
+		public readonly GuiButton VisualizeColors; //Button lets you see all the Alternates in the current layer, toggleable.
+		public readonly GuiButton ManageLayers; //Lets you copy/paste layers, add layers, and delete layers.
+		public readonly GuiTextBox LayerPicker; //Chooses which layer to add colors/alternates on. Any new notes placed will be set to the layer this is on.
+		public readonly GuiLabel LayerWarning; //Displays a warning "Layer does not exist" when setting to a layer that doesn't exist
+											   //For example if you only have 4 layers but you pick layer 5, or if you pick layer "sadasda" cause you accidently clicked on the box.
+		public readonly GuiTextBox AlternatePicker; //Picks which Alternate to insert/change color on.
+		public readonly GuiTextBox ColorPicker; //Needs better name, for picking where to insert/change
+		public readonly GuiTextBox ColorR;
+		public readonly GuiTextBox ColorG;
+		public readonly GuiTextBox ColorB;
+		public readonly GuiSlider ColorRSlider;
+		public readonly GuiSlider ColorGSlider;
+		public readonly GuiSlider ColorBSlider;
+		public readonly GuiButton AddAlternate; //Creates new alternate and sets AlternatePicker to that Alternate, default is whatever AddColor would give.
+		public readonly GuiButton AddColor; //Adds a new color in a slot depending on ColorPicker
+		public readonly GuiButton ChangeColor; //Changes the color that ColorPicker is selecting
+		public readonly GuiButton DeleteColor; //Removes the color in the slot that ColorPicker is on.
+		public readonly GuiButton DeleteAlternate; //Removes the Alternate and all colors in it.
+		public readonly GuiButton ConfirmDelete; //Will display on the other side of the screen, used for confirm delete of the last pressed Delete Button
+												 //Only required on actual layers.
+		public readonly GuiTextBox ColorHex; //Displays the current color in hex, if entered manually will translate the hex to the slider and textboxes
+		public readonly GuiButton SetNotes; //Sets any selected notes to the layer in LayerPicker
+											//If layer 0 is selected, sets to that layer and gives them whatever color is in the layer.
+		public readonly GuiButton SetColor; //Sets 1st Color display to the current color
+		public readonly GuiButton SetComparison; //Sets 2nd Color display to the current color
+		public readonly GuiButton ReverseSelection; //Button lets you select colors from textboxes instead of sliders.
+
+		public readonly GuiTextBox ShiftLevel;
+		public readonly GuiButton ShiftDefault;
+		public readonly GuiButton ApplyShift;
+
 		public readonly GuiButton OptionsNav;
 		public readonly GuiButton TimingNav;
 		public readonly GuiButton PatternsNav;
+		public readonly GuiButton ColorsNav;
 
 		public readonly GuiTextBox ScaleBox;
 		public readonly GuiButton ScaleButton;
@@ -89,8 +120,11 @@ namespace Sound_Space_Editor.Gui
 		private bool OptionsNavEnabled = false;
 		private bool TimingNavEnabled = false;
 		private bool PatternsNavEnabled = false;
+		private bool ColorsNavEnabled = false;
+		private bool ColorsDisplayEnabled = false;
+		int delete = 0;
 
-        public float AutoSaveTimer { get; private set; } = 0f;
+		public float AutoSaveTimer { get; private set; } = 0f;
 
 		private readonly GuiLabel _toast;
 		private float _toastTime;
@@ -140,6 +174,12 @@ namespace Sound_Space_Editor.Gui
 			{
 				Centered = true,
 				FontSize = 36
+			};
+
+			LayerWarning = new GuiLabel(0, 0, "", false)
+			{
+				Centered = true,
+				FontSize = 24
 			};
 
 			var playPause = new GuiButtonPlayPause(0, EditorWindow.Instance.ClientSize.Width - 512 - 64, EditorWindow.Instance.ClientSize.Height - 64, 64, 64);
@@ -253,9 +293,99 @@ namespace Sound_Space_Editor.Gui
 			HFlip = new GuiButton(11, 0, 0, 128, 32, "HORIZONTAL FLIP", false);
 			VFlip = new GuiButton(12, 0, 0, 128, 32, "VERTICAL FLIP", false);
 
+			//Colors
+			CreateColorset = new GuiButton(23, 0, 0, 128, 32, "CREATE COLORSET", false);
+			OpenColorset = new GuiButton(24, 0, 0, 128, 32, "OPEN COLORSET", false);
+			ExportColorset = new GuiButton(25, 0, 0, 128, 32, "EXPORT COLORSET", false);
+			VisualizeColors = new GuiButton(26, 0, 0, 128, 32, "VISUALIZE COLORS", false);
+			ManageLayers = new GuiButton(27, 0, 0, 128, 32, "MANAGE LAYERS", false);
+			LayerPicker = new GuiTextBox(0, 0, 128, 32)
+			{
+				Text = "0",
+				Centered = true,
+				Numeric = true,
+				CanBeNegative = false,
+			};
+			AlternatePicker = new GuiTextBox(0, 0, 128, 32)
+			{
+				Text = "0",
+				Centered = true,
+				Numeric = true,
+				CanBeNegative = false,
+			};
+			ColorPicker = new GuiTextBox(0, 0, 128, 32)
+			{
+				Text = "0",
+				Centered = true,
+				Numeric = true,
+				CanBeNegative = false,
+			};
+			ColorR = new GuiTextBox(0, 0, 128, 32)
+			{
+				Text = "0",
+				Centered = true,
+				Numeric = true,
+				CanBeNegative = false,
+			};
+			ColorG = new GuiTextBox(0, 0, 128, 32)
+			{
+				Text = "0",
+				Centered = true,
+				Numeric = true,
+				CanBeNegative = false,
+			};
+			ColorB = new GuiTextBox(0, 0, 128, 32)
+			{
+				Text = "0",
+				Centered = true,
+				Numeric = true,
+				CanBeNegative = false,
+			};
+			ColorRSlider = new GuiSlider(0, 0, 200, 32)
+			{
+				MaxValue = 255,
+				Value = 125,
+			};
+			ColorGSlider = new GuiSlider(0, 0, 200, 32)
+			{
+				MaxValue = 255,
+				Value = 125,
+			};
+			ColorBSlider = new GuiSlider(0, 0, 200, 32)
+			{
+				MaxValue = 255,
+				Value = 125,
+			};
+			AddAlternate = new GuiButton(28, 0, 0, 128, 32, "ADD ALTERNATE", false);
+			AddColor = new GuiButton(29, 0, 0, 128, 32, "ADD COLOR", false);
+			ChangeColor = new GuiButton(30, 0, 0, 128, 32, "CHANGE COLOR", false);
+			DeleteColor = new GuiButton(31, 0, 0, 128, 32, "DELETE COLOR", false);
+			DeleteAlternate = new GuiButton(32, 0, 0, 128, 32, "DELETE ALTERNATE", false);
+			ConfirmDelete = new GuiButton(33, 0, 0, 128, 32, "CONFIRM DELETE", false);
+			ColorHex = new GuiTextBox(0, 0, 128, 32)
+			{
+				Text = "#",
+				Centered = true,
+				Numeric = false,
+			};
+			SetNotes = new GuiButton(34, 0, 0, 128, 32, "SET NOTES", false);
+			SetColor = new GuiButton(37, 0, 0, 128, 32, "SET COLOR", false);
+			SetComparison = new GuiButton(35, 0, 0, 128, 32, "SET COMPARISON", false);
+			ReverseSelection = new GuiButton(36, 0, 0, 128, 32, "", false);
+			ShiftLevel = new GuiTextBox(0, 0, 128, 32)
+			{
+				Text = "0",
+				Centered = true,
+				Numeric = true,
+				CanBeNegative = true
+			};
+			ShiftDefault = new GuiButton(38, 0, 0, 128, 32, "DEFAULT SHIFT", false);
+			ApplyShift = new GuiButton(39, 0, 0, 128, 32, "APPLY SHIFT", false);
+
 			OptionsNav = new GuiButton(15, 0, 0, 200, 50, "OPTIONS >", false);
 			TimingNav = new GuiButton(16, 0, 0, 200, 50, "TIMING >", false);
 			PatternsNav = new GuiButton(17, 0, 0, 200, 50, "PATTERNS >", false);
+			ColorsNav = new GuiButton(22, 0, 0, 200, 50, "COLORS >", false);
 
 			SelectBound = new GuiButton(19, 0, 0, 64, 32, "SELECT", false);
 
@@ -292,6 +422,14 @@ namespace Sound_Space_Editor.Gui
 			ScaleBox.Focused = true;
 			MSBoundLower.Focused = true;
 			MSBoundHigher.Focused = true;
+			LayerPicker.Focused = true;
+			AlternatePicker.Focused = true;
+			ColorPicker.Focused = true;
+			ColorR.Focused = true;
+			ColorG.Focused = true;
+			ColorB.Focused = true;
+			ShiftLevel.Focused = true;
+			ColorHex.Focused = true;
 
 			Offset.OnKeyDown(Key.Right, false);
 			SfxOffset.OnKeyDown(Key.Right, false);
@@ -301,6 +439,14 @@ namespace Sound_Space_Editor.Gui
 			ScaleBox.OnKeyDown(Key.Right, false);
 			MSBoundLower.OnKeyDown(Key.Right, false);
 			MSBoundHigher.OnKeyDown(Key.Right, false);
+			LayerPicker.OnKeyDown(Key.Right, false);
+			AlternatePicker.OnKeyDown(Key.Right, false);
+			ColorPicker.OnKeyDown(Key.Right, false);
+			ColorR.OnKeyDown(Key.Right, false);
+			ColorG.OnKeyDown(Key.Right, false);
+			ColorB.OnKeyDown(Key.Right, false);
+			ShiftLevel.OnKeyDown(Key.Right, false);
+			ColorHex.OnKeyDown(Key.Right, false);
 
 			Offset.Focused = false;
 			SfxOffset.Focused = false;
@@ -310,6 +456,14 @@ namespace Sound_Space_Editor.Gui
 			ScaleBox.Focused = false;
 			MSBoundLower.Focused = false;
 			MSBoundHigher.Focused = false;
+			LayerPicker.Focused = false;
+			AlternatePicker.Focused = false;
+			ColorPicker.Focused = false;
+			ColorR.Focused = false;
+			ColorG.Focused = false;
+			ColorB.Focused = false;
+			ShiftLevel.Focused = false;
+			ColorHex.Focused = false;
 
 			Buttons.Add(playPause);
 			Buttons.Add(Timeline);
@@ -346,9 +500,30 @@ namespace Sound_Space_Editor.Gui
 			Buttons.Add(BezierStoreButton);
 			Buttons.Add(HFlip);
 			Buttons.Add(VFlip);
+			Buttons.Add(CreateColorset);
+			Buttons.Add(OpenColorset);
+			Buttons.Add(ExportColorset);
+			Buttons.Add(VisualizeColors);
+			Buttons.Add(ManageLayers);
+			Buttons.Add(AddAlternate);
+			Buttons.Add(AddColor);
+			Buttons.Add(ColorRSlider);
+			Buttons.Add(ColorGSlider);
+			Buttons.Add(ColorBSlider);
+			Buttons.Add(SetColor);
+			Buttons.Add(SetComparison);
+			Buttons.Add(ReverseSelection);
+			Buttons.Add(ShiftDefault);
+			Buttons.Add(ApplyShift);
+			Buttons.Add(ChangeColor);
+			Buttons.Add(DeleteColor);
+			Buttons.Add(DeleteAlternate);
+			Buttons.Add(ConfirmDelete);
+			Buttons.Add(SetNotes);
 			Buttons.Add(OptionsNav);
 			Buttons.Add(TimingNav);
 			Buttons.Add(PatternsNav);
+			Buttons.Add(ColorsNav);
 			Buttons.Add(ScaleButton);
 			Buttons.Add(TrackHeight);
 			Buttons.Add(TrackCursorPos);
@@ -366,6 +541,15 @@ namespace Sound_Space_Editor.Gui
 			Boxes.Add(ScaleBox);
 			Boxes.Add(MSBoundLower);
 			Boxes.Add(MSBoundHigher);
+			Boxes.Add(LayerPicker);
+			Boxes.Add(AlternatePicker);
+			Boxes.Add(ColorPicker);
+			Boxes.Add(ColorR);
+			Boxes.Add(ColorG);
+			Boxes.Add(ColorB);
+			Boxes.Add(ShiftLevel);
+			Boxes.Add(ColorHex);
+			Boxes.Add(ShiftLevel);
 
 			HideShowElements();
 
@@ -520,6 +704,65 @@ namespace Sound_Space_Editor.Gui
 					fr.Render("Scale by Percent:", (int)ScaleBox.ClientRectangle.X, (int)ScaleBox.ClientRectangle.Y - 24, 24);
 				}
 			}
+			if (ColorsNavEnabled)
+            {
+				if (rl)
+                {
+					fr.Render("Pwease ask ow seawch on how to use these featuwes~", (int)ColorsNav.ClientRectangle.X, (int)ColorsNav.ClientRectangle.Y + 62, 16);
+					fr.Render("Layew", (int)LayerPicker.ClientRectangle.X, (int)LayerPicker.ClientRectangle.Y - 24, 24);
+					fr.Render("Awtewnate", (int)LayerPicker.ClientRectangle.X, (int)LayerPicker.ClientRectangle.Y - 24, 24);
+					fr.Render("Cowow", (int)LayerPicker.ClientRectangle.X, (int)LayerPicker.ClientRectangle.Y - 24, 24);
+				}
+                else
+                {
+					fr.Render("Please ask or search on how to use these features.", (int)ColorsNav.ClientRectangle.X, (int)ColorsNav.ClientRectangle.Y + 62, 16);
+					fr.Render("Layer", (int)LayerPicker.ClientRectangle.X, (int)LayerPicker.ClientRectangle.Y - 24, 24);
+					fr.Render("Alternate", (int)AlternatePicker.ClientRectangle.X, (int)AlternatePicker.ClientRectangle.Y - 24, 24);
+					fr.Render("Color", (int)ColorPicker.ClientRectangle.X, (int)ColorPicker.ClientRectangle.Y - 24, 24);
+				}
+				GL.Color4(Colorset.currentColor);
+				Glu.RenderQuad(OptionsNav.ClientRectangle.X + 10, LayerPicker.ClientRectangle.Bottom + 10, 60, 60);
+				GL.Color4(Colorset.previousColor);
+				Glu.RenderQuad(OptionsNav.ClientRectangle.X + 10, LayerPicker.ClientRectangle.Bottom + 80, 60, 60);
+				if(ColorsDisplayEnabled == true)
+                {
+					int colorAmount = 0;
+					int layerNumber = 0;
+					try 
+					{
+						layerNumber = Int32.Parse(LayerPicker.Text);
+						colorAmount = Colorset.ColorAmount(Int32.Parse(LayerPicker.Text));
+					}
+					catch { Console.WriteLine("Wrong Layer!"); }
+					List<OpenTK.Graphics.Color4> colorList = Colorset.ColorList(layerNumber);
+					try
+					{
+						for (int i = 0; i < colorAmount; i++)
+						{
+							try
+							{
+								GL.Color4(colorList[i]);
+								Glu.RenderQuad(OpenColorset.ClientRectangle.X + 200, ColorsNav.ClientRectangle.Bottom + 10 + (i * 8), 30, 7);
+							}
+							catch { Console.WriteLine("Visualizing Colorset Failed!"); }
+						}
+						for (int i = 0; i < Colorset.layers[Int32.Parse(LayerPicker.Text)].Alternates.Count; i++)
+						{
+							for (int k = 0; k < Colorset.layers[Int32.Parse(LayerPicker.Text)].Alternates[i].Colors.Count; k++)
+							{
+								try
+								{
+									GL.Color4(Colorset.layers[Int32.Parse(LayerPicker.Text)].Alternates[i].Colors[k]);
+									Glu.RenderQuad(OpenColorset.ClientRectangle.X + 232 + (i * 12), ColorsNav.ClientRectangle.Bottom + 10 + (k * 8), 10, 7);
+								}
+								catch { Console.WriteLine("Rendering Color Failed!"); }
+							}
+						}
+                    }
+                    catch { Console.WriteLine("Major Failure in Visualizing Colorset!"); }
+                }
+			}
+			GL.Color3(Color1);
 			var divisor = rl ? $"Beat Divisow~ {BeatSnapDivisor.Value + 1}" : $"Beat Divisor: {BeatSnapDivisor.Value + 1}";
 			var divisorW = fr.GetWidth(divisor, 24);
             var align = rl ? $"Snapping~ 3/{(float)(NoteAlign.Value + 1)}" : $"Snapping: 3/{(float)(NoteAlign.Value + 1)}";
@@ -729,6 +972,14 @@ namespace Sound_Space_Editor.Gui
 			ScaleBox.OnKeyTyped(key);
 			MSBoundLower.OnKeyTyped(key);
 			MSBoundHigher.OnKeyTyped(key);
+			LayerPicker.OnKeyTyped(key);
+			AlternatePicker.OnKeyTyped(key);
+			ColorPicker.OnKeyTyped(key);
+			ColorR.OnKeyTyped(key);
+			ColorG.OnKeyTyped(key);
+			ColorB.OnKeyTyped(key);
+			ShiftLevel.OnKeyTyped(key);
+			ColorHex.OnKeyTyped(key);
 
 			UpdateTrack();
 		}
@@ -743,6 +994,14 @@ namespace Sound_Space_Editor.Gui
 			ScaleBox.OnKeyDown(key, control);
 			MSBoundLower.OnKeyDown(key, control);
 			MSBoundHigher.OnKeyDown(key, control);
+			LayerPicker.OnKeyDown(key, control);
+			AlternatePicker.OnKeyDown(key, control);
+			ColorPicker.OnKeyDown(key, control);
+			ColorR.OnKeyDown(key, control);
+			ColorG.OnKeyDown(key, control);
+			ColorB.OnKeyDown(key, control);
+			ShiftLevel.OnKeyDown(key, control);
+			ColorHex.OnKeyDown(key, control);
 
 			UpdateTrack();
 		}
@@ -757,6 +1016,14 @@ namespace Sound_Space_Editor.Gui
 			ScaleBox.OnMouseClick(x, y);
 			MSBoundLower.OnMouseClick(x, y);
 			MSBoundHigher.OnMouseClick(x, y);
+			LayerPicker.OnMouseClick(x, y);
+			AlternatePicker.OnMouseClick(x, y);
+			ColorPicker.OnMouseClick(x, y);
+			ColorR.OnMouseClick(x, y);
+			ColorG.OnMouseClick(x, y);
+			ColorB.OnMouseClick(x, y);
+			ShiftLevel.OnMouseClick(x, y);
+			ColorHex.OnMouseClick(x, y);
 
 			if (Timeline.SelectedBookmark != null)
 				EditorWindow.Instance.currentTime = TimeSpan.FromMilliseconds(Timeline.SelectedBookmark.MS);
@@ -775,6 +1042,7 @@ namespace Sound_Space_Editor.Gui
 			var heightdiff = EditorWindow.Instance.ClientSize.Height / 1080f;
 			TimingNav.ClientRectangle.Y = OptionsNav.ClientRectangle.Bottom + 10 * heightdiff;
 			PatternsNav.ClientRectangle.Y = TimingNav.ClientRectangle.Bottom + 10 * heightdiff;
+			ColorsNav.ClientRectangle.Y = PatternsNav.ClientRectangle.Bottom + 10 * heightdiff;
 
 			//options
 			Autoplay.Visible = false;
@@ -812,10 +1080,42 @@ namespace Sound_Space_Editor.Gui
 			ScaleBox.Visible = false;
 			ScaleButton.Visible = false;
 
+			//colors
+			CreateColorset.Visible = false;
+			OpenColorset.Visible = false;
+			ExportColorset.Visible = false;
+			VisualizeColors.Visible = false;
+			ManageLayers.Visible = false;
+			LayerPicker.Visible = false;
+			LayerWarning.Visible = false;
+			AlternatePicker.Visible = false;
+			ColorPicker.Visible = false;
+			ColorR.Visible = false;
+			ColorG.Visible = false;
+			ColorB.Visible = false;
+			ColorRSlider.Visible = false;
+			ColorGSlider.Visible = false;
+			ColorBSlider.Visible = false;
+			AddAlternate.Visible = false;
+			AddColor.Visible = false;
+			ChangeColor.Visible = false;
+			DeleteColor.Visible = false;
+			DeleteAlternate.Visible = false;
+			ConfirmDelete.Visible = false;
+			ColorHex.Visible = false;
+			SetNotes.Visible = false;
+			SetColor.Visible = false;
+			SetComparison.Visible = false;
+			ReverseSelection.Visible = false;
+			ShiftLevel.Visible = false;
+			ShiftDefault.Visible = false;
+			ApplyShift.Visible = false;
+
 			//button text
 			OptionsNav.Text = "OPTIONS >";
 			TimingNav.Text = "TIMING >";
 			PatternsNav.Text = "PATTERNS >";
+			ColorsNav.Text = "COLORS >";
 
 
 			if (OptionsNavEnabled)
@@ -837,6 +1137,7 @@ namespace Sound_Space_Editor.Gui
 
 				TimingNav.ClientRectangle.Y = TrackCursorPos.ClientRectangle.Bottom + 20 * heightdiff;
 				PatternsNav.ClientRectangle.Y = TimingNav.ClientRectangle.Bottom + 10 * heightdiff;
+				ColorsNav.ClientRectangle.Y = PatternsNav.ClientRectangle.Bottom + 10 * heightdiff;
 
 				OptionsNav.Text = "OPTIONS <";
 			}
@@ -849,6 +1150,7 @@ namespace Sound_Space_Editor.Gui
 				OpenBookmarks.Visible = true;
 
 				PatternsNav.ClientRectangle.Y = OpenBookmarks.ClientRectangle.Bottom + 20 * heightdiff;
+				ColorsNav.ClientRectangle.Y = PatternsNav.ClientRectangle.Bottom + 10 * heightdiff;
 
 				TimingNav.Text = "TIMING <";
 			}
@@ -868,12 +1170,53 @@ namespace Sound_Space_Editor.Gui
 				ScaleBox.Visible = true;
 				ScaleButton.Visible = true;
 
+				ColorsNav.ClientRectangle.Y = ScaleButton.ClientRectangle.Bottom + 20 * heightdiff;
+
 				PatternsNav.Text = "PATTERNS <";
 			}
+
+			if (ColorsNavEnabled)
+            {
+				CreateColorset.Visible = true;
+				OpenColorset.Visible = true;
+				ExportColorset.Visible = true;
+				VisualizeColors.Visible = true;
+				ManageLayers.Visible = true;
+				LayerPicker.Visible = true;
+				LayerWarning.Visible = true;
+				AlternatePicker.Visible = true;
+				ColorPicker.Visible = true;
+				ColorR.Visible = true;
+				ColorG.Visible = true;
+				ColorB.Visible = true;
+				ColorRSlider.Visible = true;
+				ColorGSlider.Visible = true;
+				ColorBSlider.Visible = true;
+				AddAlternate.Visible = true;
+				AddColor.Visible = true;
+				ChangeColor.Visible = true;
+				DeleteColor.Visible = true;
+				DeleteAlternate.Visible = true;
+				ConfirmDelete.Visible = true;
+				ColorHex.Visible = true;
+				SetNotes.Visible = true;
+				SetColor.Visible = true;
+				SetComparison.Visible = true;
+				ReverseSelection.Visible = true;
+				SetColor.Visible = true;
+				ShiftLevel.Visible = true;
+				ShiftDefault.Visible = true;
+				ApplyShift.Visible = true;
+
+				ColorsNav.Text = "COLORS <";
+            }
         }
 
 		protected override void OnButtonClicked(int id)
 		{
+			int ad1 = Int32.Parse(LayerPicker.Text);
+			int ad2 = Int32.Parse(AlternatePicker.Text);
+			int ad3 = Int32.Parse(ColorPicker.Text);
 			switch (id)
 			{
 				case 0:
@@ -1144,18 +1487,21 @@ namespace Sound_Space_Editor.Gui
 					OptionsNavEnabled = !OptionsNavEnabled;
 					TimingNavEnabled = false;
 					PatternsNavEnabled = false;
+					ColorsNavEnabled = false;
 					HideShowElements();
 					break;
 				case 16:
 					OptionsNavEnabled = false;
 					TimingNavEnabled = !TimingNavEnabled;
 					PatternsNavEnabled = false;
+					ColorsNavEnabled = false;
 					HideShowElements();
 					break;
 				case 17:
 					OptionsNavEnabled = false;
 					TimingNavEnabled = false;
 					PatternsNavEnabled = !PatternsNavEnabled;
+					ColorsNavEnabled = false;
 					HideShowElements();
 					break;
 				case 18:
@@ -1207,6 +1553,198 @@ namespace Sound_Space_Editor.Gui
 						EditorWindow.Instance._draggedNotes = EditorWindow.Instance.SelectedNotes;
                     }
 					break;
+				case 22:
+					OptionsNavEnabled = false;
+					TimingNavEnabled = false;
+					PatternsNavEnabled = false;
+					ColorsNavEnabled = !ColorsNavEnabled;
+					HideShowElements();
+					break;
+				case 23:
+					if (EditorWindow.Instance.PromptColorsetSave())
+					{
+						EditorWindow.Instance.Notes.SetNotesWhite();
+					}
+					break;
+				case 24:
+					using (var dialog = new OpenFileDialog
+					{
+						Title = "Select Colorset File",
+						Filter = "Text Documents (*.colorset)|*.colorset"
+					})
+					{
+						if (dialog.ShowDialog() == DialogResult.OK)
+						{
+							Colorset.LoadColorset(dialog.FileName);
+						}
+					}
+					break;
+				case 25:
+					//EXPORT COLORSET
+					if(Colorset.hasColorset == true)
+                    {
+						using (var sfd = new SaveFileDialog
+						{
+							Title = "Save Colorset",
+							Filter = "Text Documents (*.txt)|*.txt"
+						})
+						{
+							var wasFullscreen = EditorWindow.Instance.IsFullscreen;
+
+							if (EditorWindow.Instance.IsFullscreen)
+							{
+								EditorWindow.Instance.ToggleFullscreen();
+							}
+
+							var result = sfd.ShowDialog();
+
+							if (wasFullscreen)
+							{
+								EditorWindow.Instance.ToggleFullscreen();
+							}
+
+							if (result == DialogResult.OK)
+							{
+
+								EditorWindow.Instance.ExportColorsetFile(sfd.FileName);
+							}
+						}
+					}
+					break;
+				case 26:
+					//VISUALIZE COLORS
+					if (Colorset.hasColorset == true)
+					{
+						if (ColorsDisplayEnabled == true) { ColorsDisplayEnabled = false; }
+						else if (ColorsDisplayEnabled == false) { ColorsDisplayEnabled = true; };
+					}
+					break;
+				case 27:
+					//MANAGE LAYERS
+					if (Colorset.hasColorset == true)
+					{
+						if (LayerViewer.inst != null)
+							LayerViewer.inst.Close();
+						LayerViewer.inst = new LayerViewer();
+						LayerViewer.inst.Show();
+					}
+
+					break;
+				case 28:
+					//ADD ALTERNATE
+					if (Colorset.hasColorset == true)
+					{
+						Colorset.AddAlternate(ad1, ad2);
+						Colorset.DefaultColors();
+						Colorset.SetupColorset();
+					}
+					break;
+				case 29:
+					//ADD COLOR
+					if (Colorset.hasColorset == true)
+					{
+						Colorset.AddColor(ad1, ad2, ad3, Colorset.currentColor);
+						Colorset.DefaultColors();
+						Colorset.SetupColorset();
+					}
+					break;
+				case 30:
+					//CHANGE COLOR
+					if (Colorset.hasColorset == true)
+					{
+						Colorset.ChangeColor(ad1, ad2, ad3);
+						Colorset.SetupColorset();
+					}
+					break;
+				case 31:
+					//DELETE COLOR
+					delete = 1;
+					break;
+				case 32:
+					//DELETE ALTERNATE
+					delete = 2;
+                    break;
+                case 33:
+					if (Colorset.hasColorset == true)
+					{
+						if (delete == 1)
+						{
+							Colorset.DeleteColor(ad1, ad2, ad3);
+							delete = 0;
+						}
+						if (delete == 2)
+						{
+							Colorset.DeleteAlternate(ad1, ad2);
+							delete = 0;
+						}
+						Colorset.DefaultColors();
+						Colorset.SetupColorset();
+					}
+					break;
+				case 34:
+					//SET NOTES
+					if (Colorset.hasColorset == true)
+					{
+						Console.WriteLine("Set Notes");
+						var selectedNotes = EditorWindow.Instance.SelectedNotes.ToList();
+						Colorset.AssignNotes(selectedNotes, Int32.Parse(LayerPicker.Text), Int32.Parse(ShiftLevel.Text));
+					}
+					break;
+				case 35:
+					//SET COMPARISON
+					Colorset.previousColor = new OpenTK.Graphics.Color4((float)Int32.Parse(ColorR.Text) / 255, (float)Int32.Parse(ColorG.Text) / 255, (float)Int32.Parse(ColorB.Text) / 255, 255);
+					break;
+				case 36:
+					//REVERSE SELECTION (FOR RGB) (UNMARKED BUTTON)
+					//I CHANGED MY FUCKING MIND
+					//THIS BUTTON MAKES THE HEX CODE TURN TO SLIDER
+					OpenTK.Graphics.Color4 obama = HexColor.HextoColor4(ColorHex.Text);
+					ColorRSlider.Value = (int)(obama.R * 255);
+					ColorGSlider.Value = (int)(obama.G * 255);
+					ColorBSlider.Value = (int)(obama.B * 255);
+					ColorR.Text = (obama.R * 255).ToString();
+					ColorG.Text = (obama.G * 255).ToString();
+					ColorB.Text = (obama.B * 255).ToString();
+					break;
+				case 37:
+					//SET COLOR 
+					Colorset.currentColor = new OpenTK.Graphics.Color4((float)Int32.Parse(ColorR.Text) / 255, (float)Int32.Parse(ColorG.Text) / 255, (float)Int32.Parse(ColorB.Text) / 255, 255);
+					break;
+				case 38:
+					//SHIFT DEFAULT
+					if (Colorset.hasColorset == true)
+					{
+						var selectedNotes = EditorWindow.Instance.SelectedNotes.ToList();
+						bool firstnote = true;
+						foreach (Note note in selectedNotes)
+						{
+							if (firstnote == true)
+							{
+								note.shift = -999999;
+								firstnote = false;
+							}
+							else
+							{
+								note.shift = 0;
+							}
+							Console.WriteLine(note.shift);
+						}
+						Colorset.VerifyNotes();
+					}
+					break;
+				case 39:
+					//APPLY SHIFT
+					if (Colorset.hasColorset == true)
+					{
+						var selectedNotes = EditorWindow.Instance.SelectedNotes.ToList();
+						foreach (Note note in selectedNotes)
+						{
+							note.shift += Int32.Parse(ShiftLevel.Text);
+							Console.WriteLine(note.shift);
+						}
+						Colorset.VerifyNotes();
+					}
+					break;
 			}
 		}
 
@@ -1225,6 +1763,9 @@ namespace Sound_Space_Editor.Gui
 			TrackHeight.OnResize(size);
 			TrackCursorPos.OnResize(size);
 			ApproachRate.OnResize(size);
+			ColorRSlider.OnResize(size);
+			ColorGSlider.OnResize(size);
+			ColorBSlider.OnResize(size);
 
 			MasterVolume.ClientRectangle.Location = new PointF(EditorWindow.Instance.ClientSize.Width - 64, EditorWindow.Instance.ClientSize.Height - MasterVolume.ClientRectangle.Height - 64);
 			SfxVolume.ClientRectangle.Location = new PointF(MasterVolume.ClientRectangle.X - 64, EditorWindow.Instance.ClientSize.Height - SfxVolume.ClientRectangle.Height - 64);
@@ -1247,6 +1788,7 @@ namespace Sound_Space_Editor.Gui
 			OptionsNav.ClientRectangle.Size = new SizeF(400 * widthdiff, 50 * heightdiff);
 			TimingNav.ClientRectangle.Size = OptionsNav.ClientRectangle.Size;
 			PatternsNav.ClientRectangle.Size = OptionsNav.ClientRectangle.Size;
+			ColorsNav.ClientRectangle.Size = OptionsNav.ClientRectangle.Size;
 
 			//timing
 			Offset.ClientRectangle.Size = new SizeF(128 * widthdiff, 40 * heightdiff);
@@ -1284,6 +1826,37 @@ namespace Sound_Space_Editor.Gui
 			ScaleBox.ClientRectangle.Size = Offset.ClientRectangle.Size;
 			ScaleButton.ClientRectangle.Size = Offset.ClientRectangle.Size;
 
+			//colors
+			CreateColorset.ClientRectangle.Size = new SizeF(Offset.ClientRectangle.Width * 1.5f * widthdiff, Offset.ClientRectangle.Height * 0.8f);
+			OpenColorset.ClientRectangle.Size = CreateColorset.ClientRectangle.Size;
+			ExportColorset.ClientRectangle.Size = CreateColorset.ClientRectangle.Size;
+			VisualizeColors.ClientRectangle.Size = CreateColorset.ClientRectangle.Size;
+			ManageLayers.ClientRectangle.Size = new SizeF(Offset.ClientRectangle.Width * 3.08f * widthdiff, Offset.ClientRectangle.Height);
+			LayerPicker.ClientRectangle.Size = new SizeF(Offset.ClientRectangle.Width * 1f * widthdiff, Offset.ClientRectangle.Height);
+			LayerWarning.ClientRectangle.Size = CreateColorset.ClientRectangle.Size;
+			AlternatePicker.ClientRectangle.Size = LayerPicker.ClientRectangle.Size;
+			ColorPicker.ClientRectangle.Size = LayerPicker.ClientRectangle.Size;
+			ColorR.ClientRectangle.Size = new SizeF(Offset.ClientRectangle.Width * 0.64f * widthdiff, Offset.ClientRectangle.Height);
+			ColorG.ClientRectangle.Size = ColorR.ClientRectangle.Size;
+			ColorB.ClientRectangle.Size = ColorR.ClientRectangle.Size;
+			ColorRSlider.ClientRectangle.Size = new SizeF(Offset.ClientRectangle.Width * 2f * widthdiff, Offset.ClientRectangle.Height * 1.2f);
+			ColorGSlider.ClientRectangle.Size = ColorRSlider.ClientRectangle.Size;
+			ColorBSlider.ClientRectangle.Size = ColorRSlider.ClientRectangle.Size;
+			AddAlternate.ClientRectangle.Size = CreateColorset.ClientRectangle.Size;
+			AddColor.ClientRectangle.Size = CreateColorset.ClientRectangle.Size;
+			ChangeColor.ClientRectangle.Size = CreateColorset.ClientRectangle.Size;
+			DeleteColor.ClientRectangle.Size = CreateColorset.ClientRectangle.Size;
+			DeleteAlternate.ClientRectangle.Size = CreateColorset.ClientRectangle.Size;
+			ConfirmDelete.ClientRectangle.Size = CreateColorset.ClientRectangle.Size;
+			ColorHex.ClientRectangle.Size = new SizeF(Offset.ClientRectangle.Width * 1.2f * widthdiff, Offset.ClientRectangle.Height * 0.8f);
+			SetNotes.ClientRectangle.Size = ConfirmDelete.ClientRectangle.Size;
+			SetColor.ClientRectangle.Size = ConfirmDelete.ClientRectangle.Size;
+			SetComparison.ClientRectangle.Size = ConfirmDelete.ClientRectangle.Size;
+			ReverseSelection.ClientRectangle.Size = new SizeF(Offset.ClientRectangle.Height * 0.8f * widthdiff, Offset.ClientRectangle.Height * 0.8f);
+			ShiftLevel.ClientRectangle.Size = LayerPicker.ClientRectangle.Size;
+			ShiftDefault.ClientRectangle.Size = LayerPicker.ClientRectangle.Size;
+			ApplyShift.ClientRectangle.Size = LayerPicker.ClientRectangle.Size;
+
 			//etc
 			JumpMSButton.ClientRectangle.Size = new SizeF(192 * widthdiff, 40 * heightdiff);
 			SfxOffset.ClientRectangle.Size = JumpMSButton.ClientRectangle.Size;
@@ -1298,6 +1871,7 @@ namespace Sound_Space_Editor.Gui
 			OptionsNav.ClientRectangle.Location = new PointF(10 * widthdiff, Track.ClientRectangle.Bottom + 60);
 			TimingNav.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, OptionsNav.ClientRectangle.Bottom + 10 * heightdiff);
 			PatternsNav.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, TimingNav.ClientRectangle.Bottom + 10 * heightdiff);
+			ColorsNav.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, PatternsNav.ClientRectangle.Bottom + 10 * heightdiff);
 
 			//timing
 			Offset.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, TimingNav.ClientRectangle.Bottom + 40 * heightdiff);
@@ -1335,6 +1909,37 @@ namespace Sound_Space_Editor.Gui
 			ScaleBox.ClientRectangle.Location = new PointF(Offset.ClientRectangle.X, RotateBox.ClientRectangle.Bottom + 35 * heightdiff);
 			ScaleButton.ClientRectangle.Location = new PointF(RotateBox.ClientRectangle.Right + 5 * widthdiff, ScaleBox.ClientRectangle.Y);
 
+			//colors
+			CreateColorset.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, ColorsNav.ClientRectangle.Bottom + 40 * heightdiff);
+			OpenColorset.ClientRectangle.Location = new PointF(CreateColorset.ClientRectangle.X + CreateColorset.ClientRectangle.Size.Width + 10, ColorsNav.ClientRectangle.Bottom + 40 * heightdiff);
+			ExportColorset.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, CreateColorset.ClientRectangle.Bottom + 8 * heightdiff);
+			VisualizeColors.ClientRectangle.Location = new PointF(OpenColorset.ClientRectangle.X, CreateColorset.ClientRectangle.Bottom + 8 * heightdiff);
+			ManageLayers.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, ExportColorset.ClientRectangle.Bottom + 8 * heightdiff);
+			LayerPicker.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, ManageLayers.ClientRectangle.Bottom + 38 * heightdiff);
+			LayerWarning.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, CreateColorset.ClientRectangle.Bottom + 8 * heightdiff);
+			AlternatePicker.ClientRectangle.Location = new PointF(LayerPicker.ClientRectangle.X + 133, ManageLayers.ClientRectangle.Bottom + 38 * heightdiff);
+			ColorPicker.ClientRectangle.Location = new PointF(AlternatePicker.ClientRectangle.X + 133, ManageLayers.ClientRectangle.Bottom + 38 * heightdiff);
+			ColorR.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X + 312, LayerPicker.ClientRectangle.Bottom + 8 * heightdiff);
+			ColorG.ClientRectangle.Location = new PointF(ColorR.ClientRectangle.X, ColorR.ClientRectangle.Bottom + 8 * heightdiff);
+			ColorB.ClientRectangle.Location = new PointF(ColorG.ClientRectangle.X, ColorG.ClientRectangle.Bottom + 8 * heightdiff);
+			ColorRSlider.ClientRectangle.Location = new PointF(ColorR.ClientRectangle.X - 250, LayerPicker.ClientRectangle.Bottom + 5 * heightdiff);
+			ColorGSlider.ClientRectangle.Location = new PointF(ColorG.ClientRectangle.X - 250, ColorRSlider.ClientRectangle.Bottom + 1 * heightdiff);
+			ColorBSlider.ClientRectangle.Location = new PointF(ColorB.ClientRectangle.X - 250, ColorGSlider.ClientRectangle.Bottom + 1 * heightdiff);
+			ChangeColor.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, ColorB.ClientRectangle.Bottom + 8 * heightdiff);
+			ColorHex.ClientRectangle.Location = new PointF(OpenColorset.ClientRectangle.X + 38, ColorB.ClientRectangle.Bottom + 8 * heightdiff);
+			AddAlternate.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, ChangeColor.ClientRectangle.Bottom + 8 * heightdiff);
+			AddColor.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, AddAlternate.ClientRectangle.Bottom + 8 * heightdiff);
+			DeleteColor.ClientRectangle.Location = new PointF(OpenColorset.ClientRectangle.X, AddAlternate.ClientRectangle.Bottom + 8 * heightdiff);
+			DeleteAlternate.ClientRectangle.Location = new PointF(OpenColorset.ClientRectangle.X, ChangeColor.ClientRectangle.Bottom + 8 * heightdiff);
+			SetNotes.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, DeleteColor.ClientRectangle.Bottom + 8 * heightdiff);
+			ConfirmDelete.ClientRectangle.Location = new PointF(OpenColorset.ClientRectangle.X, DeleteColor.ClientRectangle.Bottom + 8 * heightdiff);
+			SetColor.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, SetNotes.ClientRectangle.Bottom + 8 * heightdiff);
+			SetComparison.ClientRectangle.Location = new PointF(OpenColorset.ClientRectangle.X, SetNotes.ClientRectangle.Bottom + 8 * heightdiff);
+			ReverseSelection.ClientRectangle.Location = new PointF(OpenColorset.ClientRectangle.X, ColorB.ClientRectangle.Bottom + 8 * heightdiff);
+			ShiftLevel.ClientRectangle.Location = new PointF(LayerPicker.ClientRectangle.X, SetColor.ClientRectangle.Bottom + 8 * heightdiff);
+			ShiftDefault.ClientRectangle.Location = new PointF(AlternatePicker.ClientRectangle.X, SetColor.ClientRectangle.Bottom + 8 * heightdiff);
+			ApplyShift.ClientRectangle.Location = new PointF(ColorPicker.ClientRectangle.X, SetColor.ClientRectangle.Bottom + 8 * heightdiff);
+
 			//etc
 			BackButton.ClientRectangle.Location = new PointF(Grid.ClientRectangle.X, Grid.ClientRectangle.Bottom + 84 * heightdiff);
 			CopyButton.ClientRectangle.Location = new PointF(Grid.ClientRectangle.X, Grid.ClientRectangle.Y - CopyButton.ClientRectangle.Height - 75 * heightdiff);
@@ -1365,6 +1970,9 @@ namespace Sound_Space_Editor.Gui
 			TrackHeight.Dragging = false;
 			TrackCursorPos.Dragging = false;
 			ApproachRate.Dragging = false;
+			ColorRSlider.Dragging = false;
+			ColorGSlider.Dragging = false;
+			ColorBSlider.Dragging = false;
 		}
 
 		private void UpdateTrack()

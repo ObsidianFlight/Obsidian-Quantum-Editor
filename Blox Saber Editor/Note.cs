@@ -4,7 +4,8 @@ using System.Drawing;
 
 namespace Sound_Space_Editor
 {
-	[Serializable]
+
+    [Serializable]
 	class Note
 	{
 		public float X;
@@ -14,18 +15,23 @@ namespace Sound_Space_Editor
 		public bool Anchored;
 
 		public Color4 Color;
+		public int layer;
+		public int shift;
 
-		public Note(float x, float y, long ms)
+		public Note(float x, float y, long ms, Color4 co)
+        {
+            X = x;
+            Y = y;
+
+            Ms = ms;
+            Color = co;
+			layer = 0;
+			shift = 0;
+        }
+
+        public Note Clone()
 		{
-			X = x;
-			Y = y;
-
-			Ms = ms;
-		}
-
-		public Note Clone()
-		{
-			return new Note(X, Y, Ms) { Color = Color };
+			return new Note(X, Y, Ms, Color);
 		}
 	}
 }

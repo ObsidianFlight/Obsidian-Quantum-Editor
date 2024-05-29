@@ -97,6 +97,7 @@ namespace Sound_Space_Editor
 		private bool _wasPlaying;
 
 		private string _file;
+		private string _colorsetFile;
 		public string ActualAudio = "";
         public string ActualAudioPath = "";
         public string ActualAudioSafe = "";
@@ -132,7 +133,7 @@ namespace Sound_Space_Editor
 
 		public bool inconspicuousvar = false;
 
-		public EditorWindow(long offset, string launcherDir) : base(1280, 720, new GraphicsMode(32, 8, 0, 8), "Sound Space Quantum Editor " + Application.ProductVersion)
+		public EditorWindow(string launcherDir) : base(1280, 720, new GraphicsMode(32, 8, 0, 8), "Sound Space Quantum Editor Colors" + Application.ProductVersion)
 		{
 			LauncherDir = launcherDir;
 			cacheFolder = Path.Combine(launcherDir, "cached\\");
@@ -183,6 +184,7 @@ namespace Sound_Space_Editor
 
 		void CheckForUpdates()
         {
+			/*
 			var versionInfo = FileVersionInfo.GetVersionInfo(Application.ExecutablePath);
 			currentEditorVersion = versionInfo.FileVersion;
 
@@ -229,14 +231,14 @@ namespace Sound_Space_Editor
 					}
 					catch
 					{
-						MessageBox.Show("Failed to locate 'SSQEUpdater.exe'\nDid you rename or move the file?", "", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+						//MessageBox.Show("Failed to locate 'SSQEUpdater.exe'\nDid you rename or move the file?", "", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 					}
 				}
 			} 
 			catch
             {
 				MessageBox.Show("Failed to check for updates", "", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
+            }*/
 		}
 
 		public void UpdateColors()
@@ -546,7 +548,7 @@ namespace Sound_Space_Editor
 						_drawPreview = false;
 						if (_lastPos.X == x && _lastPos.Y == y) return;
 						_lastPos = new PointF(x, y);
-						var note = new Note(x, y, (int)currentTime.TotalMilliseconds);
+						var note = new Note(x, y, (int)currentTime.TotalMilliseconds, Color4.White);
 						Notes.Add(note);
 						UndoRedo.AddUndoRedo("ADD NOTE", () =>
 						{
@@ -703,6 +705,36 @@ namespace Sound_Space_Editor
 
 					editor.ApproachRate.Value = (int)tick;
 					GuiGrid.ApproachRate = editor.ApproachRate.Value + 1;
+				}
+				if (editor.ColorRSlider.Dragging)
+                {
+					var rect = editor.ColorRSlider.ClientRectangle;
+					var step = (rect.Width - rect.Height) / editor.ColorRSlider.MaxValue;
+
+					var tick = (int)MathHelper.Clamp(Math.Round((e.X - rect.X - rect.Height / 2) / step), 0, editor.ColorRSlider.MaxValue);
+
+					editor.ColorRSlider.Value = (int)tick;
+					editor.ColorR.Text = editor.ColorRSlider.Value.ToString();
+				}
+				if (editor.ColorGSlider.Dragging)
+				{
+					var rect = editor.ColorGSlider.ClientRectangle;
+					var step = (rect.Width - rect.Height) / editor.ColorGSlider.MaxValue;
+
+					var tick = (int)MathHelper.Clamp(Math.Round((e.X - rect.X - rect.Height / 2) / step), 0, editor.ColorGSlider.MaxValue);
+
+					editor.ColorGSlider.Value = (int)tick;
+					editor.ColorG.Text = editor.ColorGSlider.Value.ToString();
+				}
+				if (editor.ColorBSlider.Dragging)
+				{
+					var rect = editor.ColorBSlider.ClientRectangle;
+					var step = (rect.Width - rect.Height) / editor.ColorBSlider.MaxValue;
+
+					var tick = (int)MathHelper.Clamp(Math.Round((e.X - rect.X - rect.Height / 2) / step), 0, editor.ColorBSlider.MaxValue);
+
+					editor.ColorBSlider.Value = (int)tick;
+					editor.ColorB.Text = editor.ColorBSlider.Value.ToString();
 				}
 
 				if (_draggingNoteGrid)
@@ -884,7 +916,7 @@ namespace Sound_Space_Editor
 						y = (float)Math.Max(-0.850d, y);
 						y = (float)Math.Min(2.850d, y);
 						_lastPos = new PointF(x, y);
-						var note = new Note(x, y, (int)currentTime.TotalMilliseconds);
+						var note = new Note(x, y, (int)currentTime.TotalMilliseconds, Color4.White);
 						Notes.Add(note);
 						UndoRedo.AddUndoRedo("ADD NOTE", () =>
 						{
@@ -981,6 +1013,21 @@ namespace Sound_Space_Editor
 						editor.TrackCursorPos.Dragging = true;
 						OnMouseMove(new MouseMoveEventArgs(e.X, e.Y, 0, 0));
                     }
+					else if (editor.ColorRSlider.ClientRectangle.Contains(e.Position) && editor.ColorRSlider.Visible)
+					{
+						editor.ColorRSlider.Dragging = true;
+						OnMouseMove(new MouseMoveEventArgs(e.X, e.Y, 0, 0));
+					}
+					else if (editor.ColorGSlider.ClientRectangle.Contains(e.Position) && editor.ColorGSlider.Visible)
+					{
+						editor.ColorGSlider.Dragging = true;
+						OnMouseMove(new MouseMoveEventArgs(e.X, e.Y, 0, 0));
+					}
+					else if (editor.ColorBSlider.ClientRectangle.Contains(e.Position) && editor.ColorBSlider.Visible)
+					{
+						editor.ColorBSlider.Dragging = true;
+						OnMouseMove(new MouseMoveEventArgs(e.X, e.Y, 0, 0));
+					}
 					else if (editor.ApproachRate.ClientRectangle.Contains(e.Position) && editor.ApproachRate.Visible)
                     {
 						editor.ApproachRate.Dragging = true;
@@ -1185,6 +1232,9 @@ namespace Sound_Space_Editor
 				editor.TrackHeight.Dragging = false;
 				editor.TrackCursorPos.Dragging = false;
 				editor.ApproachRate.Dragging = false;
+				editor.ColorRSlider.Dragging = false;
+				editor.ColorGSlider.Dragging = false;
+				editor.ColorBSlider.Dragging = false;
 			}
 
 			if (GuiScreen is GuiScreenMenu menu)
@@ -1294,7 +1344,7 @@ namespace Sound_Space_Editor
 
 				var ms = GetClosestBeatScroll((long)currentTime.TotalMilliseconds, false, time);
 
-				toAdd.Add(new Note(x, y, ms));
+				toAdd.Add(new Note(x, y, ms, Color4.White));
             }
 
 			Notes.AddAll(toAdd);
@@ -1385,7 +1435,7 @@ namespace Sound_Space_Editor
 								xf += (float)(bez * note.X);
 								yf += (float)(bez * note.Y);
 							}
-							finalnotes.Add(new Note(xf, yf, (long)tf));
+							finalnotes.Add(new Note(xf, yf, (long)tf, Color4.White));
 						}
 					}
 					else
@@ -1406,7 +1456,7 @@ namespace Sound_Space_Editor
 									var yf = (decimal)note.Y + ydist * t;
 									var tf = note.Ms + tdist * t;
 
-									finalnotes.Add(new Note((float)xf, (float)yf, (long)tf));
+									finalnotes.Add(new Note((float)xf, (float)yf, (long)tf, Color4.White));
 								}
 							}
 						}
@@ -1505,6 +1555,10 @@ namespace Sound_Space_Editor
 								editor.ShowToast("SAVED", Color1);
 								currentData = ParseData(false);
 							}
+							if (WriteColorsetFile(_colorsetFile))
+                            {
+								editor.ShowToast("SAVED COLORSET", Color1);
+                            }
 						}
 						return;
 					case "SaveAs":
@@ -1946,6 +2000,7 @@ namespace Sound_Space_Editor
 						}
 
 						Notes.Sort();
+						//Colorset.SetupColorset();
 					}
 					if (e.Key == Key.Right)
 					{
@@ -1955,6 +2010,7 @@ namespace Sound_Space_Editor
 						}
 
 						Notes.Sort();
+						//Colorset.SetupColorset();
 					}
 				}
 
@@ -1981,7 +2037,7 @@ namespace Sound_Space_Editor
 					if (KeyMapping.TryGetValue(e.Key, out var tuple))
 					{
 						var note = new Note(tuple.Item1, tuple.Item2,
-							(int)currentTime.TotalMilliseconds);
+							(int)currentTime.TotalMilliseconds, Color4.White);
 
 						Notes.Add(note);
 
@@ -2136,7 +2192,7 @@ namespace Sound_Space_Editor
 					ToggleFullscreen();
 				}
 
-				var r = MessageBox.Show("oh hey there\nnice map\nwant to save it?", "Close", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
+				var r = MessageBox.Show("Save map before closing?", "Close", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
 
 				if (wasFullscreen)
 				{
@@ -2144,7 +2200,13 @@ namespace Sound_Space_Editor
 				}
 
 				if (r == DialogResult.Yes)
+				{
 					PromptSave();
+                    if (Colorset.hasColorset == true)
+                    {
+						PromptColorsetSave();
+                    }
+				}
 
 				if (r == DialogResult.Cancel)
 				{
@@ -2162,73 +2224,6 @@ namespace Sound_Space_Editor
 
 		private long GetClosestBeatScroll(long ms, bool negative, int iterations)
         {
-			/*
-			if (GuiTrack.BPMs.Count == 0 || GuiTrack.BPMs[0].Ms - 5 > ms)
-				return -1;
-
-			long closestms = -1;
-			int index = 0;
-			var bpmints = new List<long>();
-
-			for (int i = 0; i < GuiTrack.BPMs.Count; i++)
-			{
-				var bpm = GuiTrack.BPMs[i];
-				if (bpm.bpm > 33)
-				{
-					double curms = bpm.Ms;
-					var nextms = totalTime.TotalMilliseconds;
-
-					if (i + 1 < GuiTrack.BPMs.Count)
-						nextms = GuiTrack.BPMs[i + 1].Ms;
-
-					double interval = 60000 / bpm.bpm / GuiTrack.BeatDivisor;
-
-					while (curms < nextms)
-					{
-						if (!bpmints.Contains((long)Math.Round(curms)))
-							bpmints.Add((long)Math.Round(curms));
-						curms += interval;
-					}
-				}
-			}
-
-			bpmints.Add((long)totalTime.TotalMilliseconds - 1);
-
-			for (int i = 0; i < bpmints.Count; i++)
-			{
-				if (i == 0)
-					closestms = bpmints[0];
-				else
-				{
-					if (Math.Abs(closestms - ms) > Math.Abs(bpmints[i] - closestms) / 2)
-					{
-						closestms = bpmints[i];
-						index = i;
-					}
-				}
-			}
-
-			if (next)
-			{
-				if (negative)
-				{
-					if (closestms < ms && Math.Abs(closestms - ms) > 5)
-						return closestms;
-					if (index > 0)
-						closestms = bpmints[index - 1];
-					else
-						closestms = -1;
-				}
-				else
-				{
-					if (closestms > ms && Math.Abs(closestms - ms) > 5)
-						return closestms;
-					if (index + 1 < bpmints.Count)
-						closestms = bpmints[index + 1];
-				}
-			}
-			*/
-			
 			long closestms = GetClosestBeat(ms, false);
 
 			if (GetCurrentBpm(closestms, false).bpm == 0)
@@ -2267,84 +2262,6 @@ namespace Sound_Space_Editor
 
 		private long GetClosestBeat(long ms, bool draggingpoint)
 		{
-			/* wayyyy too much going on here
-			var lastDiffMs = long.MaxValue;
-			var closestMs = long.MaxValue;
-
-			void CheckCloser(long beat)
-			{
-				var diffMs = Math.Abs(beat - ms);
-
-				if (diffMs <= lastDiffMs) // TODO - used to only be '='
-				{
-					lastDiffMs = diffMs;
-
-					closestMs = beat;
-				}
-			}
-
-			if (!(GuiScreen is GuiScreenEditor gui)) return 0;
-
-			var rect = gui.Track.ClientRectangle;
-
-			float audioTime = (float)currentTime.TotalMilliseconds;
-			float posX = audioTime / 1000 * CubeStep;
-
-			var screenX = gui.Track.ScreenX;
-
-			var bpm = GuiTrack.Bpm;
-			float bpmOffset = GuiTrack.BpmOffset;
-			var beatDivisor = GuiTrack.BeatDivisor;
-
-			var lineSpace = 60 / bpm * CubeStep;
-			var stepSmall = lineSpace / beatDivisor;
-
-			var lineX = screenX - posX + bpmOffset / 1000 * CubeStep;
-			if (lineX < 0)
-				lineX %= lineSpace;
-
-			while (lineSpace > 0 && lineX < rect.Width)
-			{
-				//bpm line
-				var timelineMs = (long)Math.Floor((decimal)(lineX - screenX + posX) / (decimal)CubeStep * 1000);
-
-				if (timelineMs != long.MaxValue && timelineMs != long.MinValue)
-					CheckCloser(timelineMs);
-
-				for (int j = 1; j <= beatDivisor; j++)
-				{
-					var xo = Math.Floor(lineX + j * stepSmall);
-
-					if (j < beatDivisor)
-					{
-						//divided bpm line
-						timelineMs = (long)Math.Floor((xo - screenX + posX) / CubeStep * 1000);
-
-						if (timelineMs != long.MaxValue && timelineMs != long.MinValue)
-							CheckCloser(timelineMs); //beats.Add(timelineMs);
-					}
-				}
-
-				lineX += lineSpace;
-			}
-
-			return closestMs;
-			
-
-			var currentbpm = GetCurrentBpm(ms, draggingpoint);
-			float interval = 60000 / currentbpm.bpm / GuiTrack.BeatDivisor;
-			float remainder = (ms - currentbpm.Ms) % interval;
-			float closestms = ms - remainder;
-
-			if (remainder > interval / 2)
-				closestms += interval;
-
-			if (next)
-				if (negative)
-					closestms -= interval;
-				else
-					closestms += interval;
-			*/
 			long closestms = -1;
 
 			var bpm = GetCurrentBpm(ms, draggingpoint);
@@ -2582,18 +2499,7 @@ namespace Sound_Space_Editor
 
 				if (GetCurrentBpm(time, false).bpm > 33)
 					time = GetClosestBeat(time, false);
-				/*
-				var bpm = GetCurrentBpm(time, false);
 
-				if (bpm.bpm > 33 && time >= bpm.Ms && time < totalTime.TotalMilliseconds - 1)
-				{
-					var bpmDivided = 60 / bpm.bpm * 1000 / GuiTrack.BeatDivisor;
-
-					var offset = (bpmDivided + bpm.Ms) % bpmDivided;
-
-					time = (long)Math.Round((long)Math.Round(time / (decimal)bpmDivided) * bpmDivided + offset);
-				}
-				*/
 				time = (int)Math.Max(0, Math.Min(totalTime.TotalMilliseconds - 1, time));
 
 				currentTime = TimeSpan.FromMilliseconds(time);
@@ -2644,7 +2550,6 @@ namespace Sound_Space_Editor
 			{
 				
 			}
-
 			if (LoadMap(data, true) && GuiScreen is GuiScreenEditor gse)
 			{
 				_file = file;
@@ -2672,11 +2577,14 @@ namespace Sound_Space_Editor
 						if (line.Contains('='))
 						{
 							var splits = line.Split('=');
-
 							if (splits.Length == 2)
 							{
+								var value = splits[1].Trim();
 								var property = splits[0].Trim().ToLower();
-								var value = splits[1].Trim().ToLower();
+                                if (property == "colorset") { } else 
+								{ 
+									value = value.ToLower(); 
+								}
 
 								if (property == "bookmarks")
 								{
@@ -2696,14 +2604,14 @@ namespace Sound_Space_Editor
 									culture.NumberFormat.NumberDecimalSeparator = ".";
 									var bpmsplit = value.Split(',');
 									foreach (var item in bpmsplit)
-                                    {
+									{
 										var bpmms = item.Split('|');
 										if (float.TryParse(bpmms[0], NumberStyles.Float, culture, out var bpm) && bpm > 0)
-                                        {
+										{
 											if (bpmms.Count() > 1 && int.TryParse(bpmms[1], out var ms))
 												GuiTrack.BPMs.Add(new BPM(bpm, ms));
 											else
-                                            {
+											{
 												GuiTrack.BPMs.Add(new BPM(bpm, 0));
 												oldformat = true;
 											}
@@ -2721,18 +2629,18 @@ namespace Sound_Space_Editor
 									AlignTimeline();
 								}
 								else if (property == "divisor" && long.TryParse(value, out var divisor))
-                                {
+								{
 									gse.BeatSnapDivisor.Value = (int)divisor - 1;
 
 									GuiTrack.BeatDivisor = (int)divisor;
-                                }
+								}
 								else if (property == "offset" && long.TryParse(value, out var offset))
-                                {
+								{
 									if (oldformat)
-                                    {
+									{
 										GuiTrack.BPMs[0].Ms = offset;
 										offset = 0;
-                                    }
+									}
 									GuiTrack.NoteOffset = offset;
 									gse.Offset.Text = offset.ToString();
 
@@ -2740,13 +2648,18 @@ namespace Sound_Space_Editor
 										note.Ms -= offset;
 								}
 								else if (property == "legacybpm" && float.TryParse(value, out var legacybpm))
-                                {
+								{
 									GuiTrack.Bpm = legacybpm;
-                                }
+								}
 								else if (property == "legacyoffset" && long.TryParse(value, out var legacyoffset))
-                                {
+								{
 									GuiTrack.BpmOffset = legacyoffset;
-                                }
+								}
+								else if (property == "colorset")
+								{
+									Console.WriteLine($"Grabbing Colorset from {value}");
+									Colorset.LoadColorset(value);
+								}
                             }
 						}
 					}
@@ -2780,11 +2693,9 @@ namespace Sound_Space_Editor
 			}
 
 			var splits = Regex.Matches(data, "([^,]+)");
-
 			try
 			{
 				var audio = splits[0];
-
 				for (int i = 1; i < splits.Count; i++)
 				{
 					var chunk = splits[i];
@@ -2797,8 +2708,7 @@ namespace Sound_Space_Editor
 					var x = 2 - float.Parse(chunkSplit[0].Value, culture);
 					var y = 2 - float.Parse(chunkSplit[1].Value, culture);
 					var ms = long.Parse(chunkSplit[2].Value);
-
-					Notes.Add(new Note(x, y, ms));
+					Notes.Add(new Note(x, y, ms, Color4.White));
 				}
 				_soundId = Path.GetFileNameWithoutExtension(audio.Value);
 				if (LoadSound(_soundId, false))
@@ -2822,7 +2732,6 @@ namespace Sound_Space_Editor
 				}
 				else
 					_soundId = "-1";
-
 				GuiTrack.BPMs.Clear();
 				GuiTrack.NoteOffset = 0;
 				GuiTrack.TextBpm = 0;
@@ -2835,7 +2744,6 @@ namespace Sound_Space_Editor
 				MessageBox.Show("An error has occured while loading map data.\n");
 				return false;
 			}
-
 			return _soundId != "-1";
 		}
 
@@ -2844,6 +2752,7 @@ namespace Sound_Space_Editor
 			//LoadMap(id, false);
 			Console.WriteLine(id);
             _file = null;
+			_colorsetFile = null;
 
             Notes.Clear();
 
@@ -2887,6 +2796,46 @@ namespace Sound_Space_Editor
 				return new BPM(GuiTrack.Bpm, GuiTrack.BpmOffset);
             }
         }
+
+		public static void setColorsetFile(string value)
+		{
+			Instance._colorsetFile = value;
+		}
+
+		public bool PromptColorsetSave()
+        {
+			using (var sfd = new SaveFileDialog
+			{
+				Title = "Save Colorset",
+				Filter = "Text Documents (*.colorset)|*.colorset"
+			})
+			{
+				var wasFullscreen = IsFullscreen;
+
+				if (IsFullscreen)
+				{
+					ToggleFullscreen();
+				}
+
+				var result = sfd.ShowDialog();
+
+				if (wasFullscreen)
+				{
+					ToggleFullscreen();
+				}
+
+				if (result == DialogResult.OK)
+				{
+					_colorsetFile = sfd.FileName;
+
+					WriteColorsetFile(sfd.FileName);
+
+					return true;
+				}
+			}
+
+			return false;
+		}
 
 		private bool PromptSave()
 		{
@@ -2967,6 +2916,79 @@ namespace Sound_Space_Editor
 			}
 		}
 
+		
+		private bool WriteColorsetFile(string file)
+        {
+			if (file == null)
+				return false;
+
+			try
+            {
+				string data = "layers=";
+                foreach (var layer in Colorset.layers)
+                {
+                    foreach (var alternate in layer.Alternates)
+                    {
+                        foreach (var color in alternate.Colors)
+                        {
+                            data += $"#{HexColor.Color4toHex(color)}";
+                            if (color == alternate.Colors[alternate.Colors.Count - 1])
+                            { }
+                            else { data += "|"; }
+                        }
+                        if (alternate == layer.Alternates[layer.Alternates.Count - 1])
+                        { }
+                        else { data += "%"; }
+                    }
+                    if (layer == Colorset.layers[Colorset.layers.Count - 1])
+                    { data += $"-{layer.Fade}"; }
+                    else { data += $"-{layer.Fade},"; }
+                }
+				data += "\n";
+				data += "notes=";
+				foreach(var note in Instance.Notes._notes)
+                {
+					data += $"{HexColor.Color4toHex(note.Color)},{note.layer},{note.shift}";
+					if (note == Instance.Notes._notes[Instance.Notes._notes.Count - 1])
+					{ }
+					else { data += "|"; }
+                }
+                File.WriteAllText(file, data, Encoding.UTF8);
+			}
+			catch { return false; }
+
+			return true;
+        }
+
+		public bool ExportColorsetFile(string file)
+		{
+			if (file == null)
+				return false;
+
+			try
+			{
+				string data = "";
+				bool first = true;
+				foreach(var note in Instance.Notes._notes)
+                {
+					if(first == true)
+                    {
+						data += $"#{HexColor.Color4toHex(note.Color)}";
+						first = false;
+                    }
+                    else
+                    {
+						data += $"\n#{HexColor.Color4toHex(note.Color)}";
+                    }
+                }
+				File.WriteAllText(file, data, Encoding.UTF8);
+			}
+			catch { return false; }
+
+			return true;
+		}
+
+
 		private bool WriteFile(string file)
 		{
 			if (file == null)
@@ -3022,6 +3044,16 @@ namespace Sound_Space_Editor
 			return final;
         }
 
+		private string ColorsetToString()
+		{
+			if (_colorsetFile == null)
+			{ return ""; }
+            else
+            {
+				return _colorsetFile;
+            }
+		}
+
 		private void WriteIniFile()
 		{
 			if (_file == null)
@@ -3029,7 +3061,7 @@ namespace Sound_Space_Editor
 			
 			var iniFile = Path.ChangeExtension(_file, ".ini");
 
-			File.WriteAllLines(iniFile, new[] { $@"BPM={BpmsToString()}", $@"Bookmarks={BookmarksToString()}", $@"Offset={GuiTrack.NoteOffset}", $@"LegacyBPM={GuiTrack.Bpm}", $@"LegacyOffset={GuiTrack.BpmOffset}", $@"Time={(long)currentTime.TotalMilliseconds}", $@"Divisor={GuiTrack.BeatDivisor}"}, Encoding.UTF8);
+			File.WriteAllLines(iniFile, new[] { $@"BPM={BpmsToString()}", $@"Bookmarks={BookmarksToString()}", $@"Offset={GuiTrack.NoteOffset}", $@"LegacyBPM={GuiTrack.Bpm}", $@"LegacyOffset={GuiTrack.BpmOffset}", $@"Time={(long)currentTime.TotalMilliseconds}", $@"Divisor={GuiTrack.BeatDivisor}", $@"Colorset={ColorsetToString()}" }, Encoding.UTF8);
 		}
 
 		private bool LoadSound(string id, bool imported)
@@ -3097,6 +3129,10 @@ namespace Sound_Space_Editor
 					editor.ShowToast("AUTOSAVED", Color1);
 					currentData = ParseData(false);
 				}
+				/*if (WriteColorsetFile(_colorsetFile))
+                {
+					editor.ShowToast("AUTOSAVED COLORSET", Color1);
+				}*/
 			}
 		}
 
@@ -3135,6 +3171,7 @@ namespace Sound_Space_Editor
 				_soundId = "-1";
 
 				_file = null;
+				_colorsetFile = null;
 			}
 
 			GuiScreen?.OnClosing();
@@ -3164,7 +3201,7 @@ namespace Sound_Space_Editor
 
 	class NoteList
 	{
-		private List<Note> _notes = new List<Note>();
+		public List<Note> _notes = new List<Note>();
 
 		public int Count
 		{
@@ -3185,6 +3222,7 @@ namespace Sound_Space_Editor
 			}
 
 			Sort();
+			//Colorset.SetupColorset();
 		}
 
 		public void Remove(Note note)
@@ -3195,6 +3233,7 @@ namespace Sound_Space_Editor
 			}
 
 			Sort();
+			//Colorset.SetupColorset();
 		}
 
 		public void Clear()
@@ -3221,15 +3260,48 @@ namespace Sound_Space_Editor
 			return (i - 1 >= 0 && _notes[i - 1].Ms == ms) || (i + 1 < _notes.Count() && _notes[i + 1].Ms == ms);
         }
 
+		public void SetNotesWhite()
+        {
+			lock (_notes)
+            {
+				Colorset.layers.Clear();
+				Colorset.AddLayer(0);
+				Colorset.AssignNotes(_notes, 0, 0);
+				Colorset.hasColorset = true;
+				Colorset.SetupColorset();
+			}
+        }
+
 		public void Sort()
 		{
 			lock (_notes)
 			{
 				_notes = new List<Note>(_notes.OrderBy(n => n.Ms));
+				int[] notePass = new int[Colorset.Colors.Length];
+				int[] currentshift = new int[Colorset.Colors.Length];
+				for (int i = 0; i < currentshift.Length; i++)
+                {
+					currentshift[i] = 0;
+					Console.WriteLine("b " + i);
+                }
 				for (int i = 0; i < _notes.Count; i++)
                 {
-					if (IsMegaNote(i))
-						_notes[i].Color = MergeColors(EditorSettings.NoteColor1, EditorSettings.NoteColor2);
+					if (Colorset.hasColorset == true)
+                    {
+						try
+						{
+                            if (_notes[i].layer != 0)
+                            {
+								int layer = _notes[i].layer;
+                                currentshift[layer] += Colorset.Clamp(_notes[i].shift, (notePass[layer] * -1) - currentshift[layer], 999999);
+								//Console.WriteLine("a " + (notePass[layer] + Colorset.layers[layer].Fade + currentshift[layer]) % Colorset.Colors[layer].Count);
+								_notes[i].Color = Colorset.Colors[layer][(notePass[layer] + currentshift[layer]) % Colorset.Colors[layer].Count];
+								//Console.WriteLine($"R: {Colorset.Colors[layer][notePass[layer] % Colorset.Colors[layer].Count].R}, G: {Colorset.Colors[layer][notePass[layer] % Colorset.Colors[layer].Count].G}, B: {Colorset.Colors[layer][notePass[layer] % Colorset.Colors[layer].Count].B}");
+								notePass[layer]++;
+							}
+						}
+                        catch { Console.WriteLine($"Note is on imaginary layer! {_notes[i].layer}"); }
+					}
 					else
                     {
 						if (i % 2 == 0)

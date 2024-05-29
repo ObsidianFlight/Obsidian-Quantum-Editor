@@ -138,7 +138,14 @@
     <Compile Include="BPMTapper.Designer.cs">
       <DependentUpon>BPMTapper.cs</DependentUpon>
     </Compile>
+    <Compile Include="Colorset.cs" />
     <Compile Include="EditorSettings.cs" />
+    <Compile Include="LayerViewer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LayerViewer.Designer.cs">
+      <DependentUpon>LayerViewer.cs</DependentUpon>
+    </Compile>
     <Compile Include="Gui\GuiScreenKeybinds.cs" />
     <Compile Include="Gui\GuiScreenSettings.cs" />
     <Compile Include="Gui\GuiScreenTimings.cs" />
@@ -199,6 +206,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="BPMTapper.resx">
       <DependentUpon>BPMTapper.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LayerViewer.resx">
+      <DependentUpon>LayerViewer.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

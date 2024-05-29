@@ -1,0 +1,3 @@
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Editor\New SSQE\obj\Debug\net6.0\New SSQE.csproj.AssemblyReference.cache
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Editor\New SSQE\obj\Debug\net6.0\New SSQE.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Editor\New SSQE\obj\Debug\net6.0\New SSQE.csproj.CoreCompileInputs.cache

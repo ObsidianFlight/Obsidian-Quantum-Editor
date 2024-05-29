@@ -135,3 +135,32 @@ C:\Users\Wilczek\source\repos\SoundSpaceQuantumEditor\Blox Saber Editor\obj\Debu
 C:\Users\Wilczek\source\repos\SoundSpaceQuantumEditor\Blox Saber Editor\obj\Debug\Blox Saber Editor.csproj.CopyComplete
 C:\Users\Wilczek\source\repos\SoundSpaceQuantumEditor\Blox Saber Editor\obj\Debug\Sound Space Quantum Editor.exe
 C:\Users\Wilczek\source\repos\SoundSpaceQuantumEditor\Blox Saber Editor\obj\Debug\Sound Space Quantum Editor.pdb
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Blox Saber Editor\bin\Debug\x86\bassasio.dll
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Blox Saber Editor\bin\Debug\x64\bassasio.dll
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Blox Saber Editor\bin\Debug\ProgramDependencies\bass.dll
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Blox Saber Editor\bin\Debug\ProgramDependencies\bassasio.dll
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Blox Saber Editor\bin\Debug\ProgramDependencies\bass_fx.dll
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Blox Saber Editor\bin\Debug\ProgramDependencies\discord_game_sdk.dll
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Blox Saber Editor\bin\Debug\ProgramDependencies\freetype.dll
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Blox Saber Editor\bin\Debug\Sound Space Quantum Editor.exe.config
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Blox Saber Editor\bin\Debug\Sound Space Quantum Editor.exe
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Blox Saber Editor\bin\Debug\Sound Space Quantum Editor.pdb
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Blox Saber Editor\bin\Debug\Bass.Net.dll
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Blox Saber Editor\bin\Debug\NCalc.dll
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Blox Saber Editor\bin\Debug\OpenTK.dll
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Blox Saber Editor\bin\Debug\System.Json.dll
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Blox Saber Editor\bin\Debug\Bass.Net.xml
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Blox Saber Editor\bin\Debug\OpenTK.xml
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Blox Saber Editor\bin\Debug\System.Json.xml
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Blox Saber Editor\obj\Debug\Blox Saber Editor.csproj.AssemblyReference.cache
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Blox Saber Editor\obj\Debug\Blox Saber Editor.csproj.SuggestedBindingRedirects.cache
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Blox Saber Editor\obj\Debug\Sound_Space_Editor.BookmarkSetup.resources
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Blox Saber Editor\obj\Debug\Sound_Space_Editor.BPMTapper.resources
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Blox Saber Editor\obj\Debug\Sound_Space_Editor.Properties.Resources.resources
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Blox Saber Editor\obj\Debug\Sound_Space_Editor.TimingsWindow.resources
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Blox Saber Editor\obj\Debug\Blox Saber Editor.csproj.GenerateResource.cache
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Blox Saber Editor\obj\Debug\Blox Saber Editor.csproj.CoreCompileInputs.cache
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Blox Saber Editor\obj\Debug\Blox Saber Editor.csproj.CopyComplete
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Blox Saber Editor\obj\Debug\Sound Space Quantum Editor.exe
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Blox Saber Editor\obj\Debug\Sound Space Quantum Editor.pdb
+C:\Users\David\Documents\GitHub\Obsidian-Quantum-Editor\Blox Saber Editor\obj\Debug\Sound_Space_Editor.LayerViewer.resources

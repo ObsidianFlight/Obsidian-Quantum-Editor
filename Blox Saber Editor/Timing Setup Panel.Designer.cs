@@ -59,7 +59,6 @@
             this.PointList.AllowUserToDeleteRows = false;
             this.PointList.AllowUserToResizeColumns = false;
             this.PointList.AllowUserToResizeRows = false;
-            this.PointList.BackgroundColor = System.Drawing.SystemColors.Control;
             this.PointList.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.PointList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.PointList.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -75,6 +74,7 @@
             this.PointList.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.PointList.Size = new System.Drawing.Size(326, 342);
             this.PointList.TabIndex = 9;
+            this.PointList.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.PointList_CellContentClick);
             this.PointList.SelectionChanged += new System.EventHandler(this.PointList_SelectionChanged);
             // 
             // BPM
@@ -287,6 +287,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.ControlDarkDark;
             this.ClientSize = new System.Drawing.Size(345, 546);
             this.Controls.Add(this.OffsetLabel);
             this.Controls.Add(this.BpmLabel);
@@ -308,8 +309,8 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "TimingsWindow";
             this.ShowIcon = false;
-            this.Closing += new System.ComponentModel.CancelEventHandler(OnClosing);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Closing += new System.ComponentModel.CancelEventHandler(this.OnClosing);
             ((System.ComponentModel.ISupportInitialize)(this.PointList)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.MoveBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.BpmBox)).EndInit();

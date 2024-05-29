@@ -58,7 +58,7 @@ namespace Sound_Space_Editor.Gui
 
 			Glu.RenderQuad(rect);
 			GL.Color3(0.2f, 0.2f, 0.2f);
-			Glu.RenderQuad((int)rect.X, (int)rect.Y + rect.Height, (int)rect.Width, 1);
+			Glu.RenderQuad((float)rect.X, (float)rect.Y + rect.Height, (float)rect.Width, 1);
 
 			var fr = editor.FontRenderer;
 
@@ -140,8 +140,8 @@ namespace Sound_Space_Editor.Gui
 			GL.LineWidth(2);
 			GL.Color4(Color2);
 			GL.Begin(PrimitiveType.Lines);
-			GL.Vertex2((int)(ScreenX - posX), rect.Y);
-			GL.Vertex2((int)(ScreenX - posX), rect.Y + rect.Height);
+			GL.Vertex2((float)(ScreenX - posX), rect.Y);
+			GL.Vertex2((float)(ScreenX - posX), rect.Y + rect.Height);
 			GL.End();
 
 			var endLineX = ScreenX - posX + maxX + 1;
@@ -149,8 +149,8 @@ namespace Sound_Space_Editor.Gui
 			//draw end line
 			GL.Color4(1f, 0f, 0f, 1);
 			GL.Begin(PrimitiveType.Lines);
-			GL.Vertex2((int)endLineX, rect.Y);
-			GL.Vertex2((int)endLineX, rect.Y + rect.Height);
+			GL.Vertex2((float)endLineX, rect.Y);
+			GL.Vertex2((float)endLineX, rect.Y + rect.Height);
 			GL.End();
 			GL.LineWidth(1);
 
@@ -179,13 +179,7 @@ namespace Sound_Space_Editor.Gui
 					}
 				}
 
-				var x = Math.Round(ScreenX - posX + note.Ms / 1000f * cubeStep);
-
-				if (x > rect.Width)
-					break;
-
-				if (x < rect.X - noteSize || rendered.Contains((int)x) || rendered.Contains((int)x + 1) || rendered.Contains((int)x - 1))
-					continue;
+				var x = Math.Round(ScreenX - posX + note.Ms / 1000f * cubeStep, 3);
 
 				rendered.Add((int)x);
 
@@ -197,7 +191,7 @@ namespace Sound_Space_Editor.Gui
 				}
 
 
-				var noteRect = new RectangleF((int)x, (int)y, noteSize, noteSize);
+				var noteRect = new RectangleF((float)x, (float)y, noteSize, noteSize);
 
 				var b = MouseOverNote == null && !mouseOver && noteRect.Contains(mouseX, mouseY);
 
@@ -215,35 +209,39 @@ namespace Sound_Space_Editor.Gui
 						GL.Color3(0, 0.5f, 1);
 					}
 
-					Glu.RenderOutline((int)(x - 4), (int)(y - 4), (int)(noteSize + 8), (int)(noteSize + 8));
+					Glu.RenderOutline((float)(x - 4), (float)(y - 4), (int)(noteSize + 8), (int)(noteSize + 8));
 				}
 
 				var c = Color.FromArgb((int)(15 * alphaMult), (int)note.Color.R, (int)note.Color.G, (int)note.Color.B);
 
 				GL.Color4(c);
-				Glu.RenderQuad((int)x, (int)y, (int)noteSize, (int)noteSize);
+				Glu.RenderQuad((float)x, (float)y, (float)noteSize, (float)noteSize);
 				GL.Color4(note.Color.R, note.Color.G, note.Color.B, alphaMult);
-				Glu.RenderOutline((int)x, (int)y, (int)noteSize, (int)noteSize);
+				Glu.RenderOutline((float)x, (float)y, (float)noteSize, (float)noteSize);
 
 				var gridGap = 2;
+
 				for (int j = 0; j < 9; j++)
 				{
 					var indexX = 2 - j % 3;
 					var indexY = 2 - j / 3;
 
-					var gridX = (int)x + indexX * (9 + gridGap) + 5;
-					var gridY = (int)y + indexY * (9 + gridGap) + 5;
+					var gridX = (float)x + (float)indexX * (9 + gridGap) + 5;
+					var gridY = (float)y + (float)indexY * (9 + gridGap) + 5;
 
-					if (Math.Round(note.X, 3) == indexX && Math.Round(note.Y, 3) == indexY)
+					/*if (Math.Round(note.X, 3) == indexX && Math.Round(note.Y, 3) == indexY)
 					{
 						GL.Color4(note.Color.R, note.Color.G, note.Color.B, alphaMult);
 						Glu.RenderQuad(gridX, gridY, 9, 9);
-					}
-					else
+					}*/
+
+					if (j == 0)
 					{
-						GL.Color4(note.Color.R, note.Color.G, note.Color.B, alphaMult * 0.45);
-						Glu.RenderOutline(gridX, gridY, 9, 9);
+						GL.Color4(note.Color.R, note.Color.G, note.Color.B, alphaMult);
+						Glu.RenderQuad(gridX + note.X * (9 + gridGap) - (2 *(9 + gridGap)), gridY + note.Y * (9 + gridGap) - (2 * (9 + gridGap)), 9, 9);
 					}
+					GL.Color4(note.Color.R, note.Color.G, note.Color.B, alphaMult * 0.3);
+						Glu.RenderOutline(gridX, gridY, 9, 9);
 				}
 
 				var numText = $"{(i + 1):##,###}";
@@ -261,8 +259,8 @@ namespace Sound_Space_Editor.Gui
 				//draw line
 				GL.Color4(1f, 1f, 1f, alphaMult);
 				GL.Begin(PrimitiveType.Lines);
-				GL.Vertex2((int)x + 0.5f, rect.Y + rect.Height + 3);
-				GL.Vertex2((int)x + 0.5f, rect.Y + rect.Height + 28);
+				GL.Vertex2((float)x + 0.5f, rect.Y + rect.Height + 3);
+				GL.Vertex2((float)x + 0.5f, rect.Y + rect.Height + 28);
 				GL.End();
 			}
 
@@ -492,8 +490,8 @@ namespace Sound_Space_Editor.Gui
 			//draw screen line
 			GL.Color4(1f, 1, 1, 0.75);
 			GL.Begin(PrimitiveType.Lines);
-			GL.Vertex2((int)(rect.X + ScreenX) + 0.5, rect.Y + 4);
-			GL.Vertex2((int)(rect.X + ScreenX) + 0.5, rect.Y + rect.Height - 4);
+			GL.Vertex2((float)(rect.X + ScreenX) + 0.5, rect.Y + 4);
+			GL.Vertex2((float)(rect.X + ScreenX) + 0.5, rect.Y + rect.Height - 4);
 			GL.End();
 
 			//GL.Color3(1, 1, 1f);

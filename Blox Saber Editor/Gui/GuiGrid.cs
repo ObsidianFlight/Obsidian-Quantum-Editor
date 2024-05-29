@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
+using OpenTK.Graphics;
 using Sound_Space_Editor.Properties;
 
 namespace Sound_Space_Editor.Gui
@@ -16,7 +17,7 @@ namespace Sound_Space_Editor.Gui
 	{
 		public Note MouseOverNote;
 
-		private readonly Note _startNote = new Note(1, 1, 0);
+		private readonly Note _startNote = new Note(1, 1, 0, Color4.White);
 
 		public static int ApproachRate = Settings.Default.ApproachRate + 1;
 

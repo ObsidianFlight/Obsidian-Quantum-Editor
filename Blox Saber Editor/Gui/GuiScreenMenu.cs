@@ -30,9 +30,8 @@ namespace Sound_Space_Editor.Gui
 		private GuiButton _loadMapButton = new GuiButton(1, 0, 0, 600, 100, "LOAD MAP", "square", 100);
 		private GuiButton _importButton = new GuiButton(2, 0, 0, 600, 100, "IMPORT MAP", "square", 100);
         private GuiButton _SettingsButton = new GuiButton(3, 0, 0, 600, 100, "SETTINGS", "square", 100);
-
-		private GuiButton _AutosavedButton = new GuiButton(4, 0, 0, 0, 0, "AUTOSAVED MAP", "square", 100);
-		private GuiButton _LastButton = new GuiButton(5, 0, 0, 0, 0, "EDIT LAST MAP", "square", 100);
+		private GuiButton _AutosavedButton = new GuiButton(4, 0, 0, 600, 100, "AUTOSAVED MAP", "square", 100);
+		private GuiButton _LastButton = new GuiButton(5, 0, 0, 600, 100, "EDIT LAST MAP", "square", 100);
 
 		public GuiSlider ScrollBar;
 
@@ -156,24 +155,16 @@ namespace Sound_Space_Editor.Gui
 			_loadMapButton.ClientRectangle.Location = new PointF(1190 * widthdiff, 295 * heightdiff);
 			_importButton.ClientRectangle.Location = new PointF(1190 * widthdiff, 410 * heightdiff);
 			_SettingsButton.ClientRectangle.Location = new PointF(1190 * widthdiff, 525 * heightdiff);
-
-			if (Settings.Default.AutosavedFile != "")
-				_AutosavedButton.ClientRectangle.Location = new PointF(1190 * widthdiff, 640 * heightdiff);
-
-			if (Settings.Default.LastFile != "")
-				_LastButton.ClientRectangle.Location = new PointF(1190 * widthdiff, Settings.Default.AutosavedFile == "" ? 640 * heightdiff : 755 * heightdiff);
+			_AutosavedButton.ClientRectangle.Location = new PointF(1190 * widthdiff, 640 * heightdiff);
+			_LastButton.ClientRectangle.Location = new PointF(1190 * widthdiff, 755 * heightdiff);
 
 			// resizing
 			_createMapButton.ClientRectangle.Size = new SizeF(600 * widthdiff, 100 * heightdiff);
 			_loadMapButton.ClientRectangle.Size = new SizeF(600 * widthdiff, 100 * heightdiff);
 			_importButton.ClientRectangle.Size = new SizeF(600 * widthdiff, 100 * heightdiff);
 			_SettingsButton.ClientRectangle.Size = new SizeF(600 * widthdiff, 100 * heightdiff);
-
-			if (Settings.Default.AutosavedFile != "")
-				_AutosavedButton.ClientRectangle.Size = new SizeF(600 * widthdiff, 100 * heightdiff);
-
-			if (Settings.Default.LastFile != "")
-				_LastButton.ClientRectangle.Size = new SizeF(600 * widthdiff, 100 * heightdiff);
+			_AutosavedButton.ClientRectangle.Size = new SizeF(600 * widthdiff, 100 * heightdiff);
+			_LastButton.ClientRectangle.Size = new SizeF(600 * widthdiff, 100 * heightdiff);
 
 			ScrollBar.ClientRectangle.Location = new PointF(950 * widthdiff, 230 * heightdiff);
 			ScrollBar.ClientRectangle.Size = new SizeF(20 * widthdiff, 720 * heightdiff);
