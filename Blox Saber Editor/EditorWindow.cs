@@ -133,7 +133,7 @@ namespace Sound_Space_Editor
 
 		public bool inconspicuousvar = false;
 
-		public EditorWindow(string launcherDir) : base(1280, 720, new GraphicsMode(32, 8, 0, 8), "Sound Space Quantum Editor Colors" + Application.ProductVersion)
+		public EditorWindow(string launcherDir) : base(1280, 720, new GraphicsMode(32, 8, 0, 8), "Sound Space Quantum Editor Colors " + Application.ProductVersion)
 		{
 			LauncherDir = launcherDir;
 			cacheFolder = Path.Combine(launcherDir, "cached\\");

@@ -55,7 +55,7 @@ namespace Sound_Space_Editor.Gui
 			try
             {
 				SecureWebClient wc = new SecureWebClient();
-				ChangelogText = wc.DownloadString("https://raw.githubusercontent.com/David20122/Sound-Space-Quantum-Editor/master/changelog");
+				ChangelogText = wc.DownloadString("https://raw.githubusercontent.com/ObsidianFlight/Obsidian-Quantum-Editor/master/changelog");
 				Changelog = new GuiLabel(0, 0, ChangelogText, "main", 16);
 
 				ScrollBar.MaxValue = ChangelogText.Split('\n').Length;

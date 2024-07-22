@@ -1,4 +1,21 @@
 ----------------------------------
+	 -- 1.9.1 : whoops - 7/22/2024 --
+
+- fixed the horrendous lag when using more than ~1000 notes
+		  - it was like 2 lines of code I removed for fun, I'm so sorry...
+- supposedly fade for layer 0 didn't work but it works and I didn't fix it so I'm putting this here anyway.
+
+----------------------------------
+	 -- 1.9 : i am the king! - 5/28/2024 --
+
+I (Obsiid) am in charge of this version now. Please direct any problems with this to me and nobody else.
+
+- added a way to create colorsets in the editor, 
+		  - no more going back and forth between programs and playtesting over and over!
+		  - it's a little clunky!
+		  - but it works!
+
+----------------------------------
      -- 1.8.5.5 : monkey brain - 24/02/2022 --
 
 - fixed audio importing

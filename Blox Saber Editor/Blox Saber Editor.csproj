@@ -206,9 +206,11 @@
     </EmbeddedResource>
     <EmbeddedResource Include="BPMTapper.resx">
       <DependentUpon>BPMTapper.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="LayerViewer.resx">
       <DependentUpon>LayerViewer.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -217,6 +219,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Timing Setup Panel.resx">
       <DependentUpon>Timing Setup Panel.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="Help\BassNet.chm" />
     <None Include="OpenTK.dll.config" />
