@@ -179,7 +179,13 @@ namespace Sound_Space_Editor.Gui
 					}
 				}
 
-				var x = Math.Round(ScreenX - posX + note.Ms / 1000f * cubeStep, 3);
+				var x = Math.Round(ScreenX - posX + note.Ms / 1000f * cubeStep);
+
+				if (x > rect.Width)
+					break;
+
+				if (x < rect.X - noteSize || rendered.Contains((int)x) || rendered.Contains((int)x + 1) || rendered.Contains((int)x - 1))
+					continue;
 
 				rendered.Add((int)x);
 
