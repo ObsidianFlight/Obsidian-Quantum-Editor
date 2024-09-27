@@ -66,6 +66,10 @@ namespace Sound_Space_Editor.Gui
         private readonly GuiTextBox AnchorNodeBox = new GuiTextBox(0, 0, 0, 0) { Text = EditorSettings.AnchorNode.Key.ToString().ToUpper(), Centered = true };
         private readonly GuiButton AnchorNodeReset = new GuiButton(17, 0, 0, 0, 0, "RESET", false);
 
+        private readonly GuiTextBox SetNotesBox = new GuiTextBox(0, 0, 0, 0) { Text = EditorSettings.SetNotesColor.Key.ToString().ToUpper(), Centered = true };
+        private readonly GuiButton SetNotesReset = new GuiButton(18, 0, 0, 0, 0, "RESET", false);
+
+
         private readonly GuiTextBox TLBox = new GuiTextBox(0, 0, 0, 0) { Text = EditorSettings.GridKeys.TL.ToString().ToUpper(), Centered = true };
         private readonly GuiButton TLReset = new GuiButton(90, 0, 0, 0, 0, "RESET", false);
 
@@ -119,6 +123,7 @@ namespace Sound_Space_Editor.Gui
             Buttons.Add(StoreNodesReset);
             Buttons.Add(DrawBezierReset);
             Buttons.Add(AnchorNodeReset);
+            Buttons.Add(SetNotesReset);
 
             Buttons.Add(TLReset);
             Buttons.Add(TCReset);
@@ -225,6 +230,10 @@ namespace Sound_Space_Editor.Gui
             fr.Render("Anchor Bezier Node", (int)AnchorNodeBox.ClientRectangle.X, (int)AnchorNodeBox.ClientRectangle.Y - labeloffset, labelsize);
             fr.Render(CSAString(EditorSettings.AnchorNode), (int)AnchorNodeReset.ClientRectangle.Right + 10, (int)AnchorNodeReset.ClientRectangle.Y + (int)(AnchorNodeReset.ClientRectangle.Height / 2) - (int)(12 * scale), labelsize);
 
+            fr.Render("Set Notes to Layer", (int)SetNotesBox.ClientRectangle.X, (int)SetNotesBox.ClientRectangle.Y - labeloffset, labelsize);
+            fr.Render(CSAString(EditorSettings.SetNotesColor), (int)SetNotesReset.ClientRectangle.Right + 10, (int)SetNotesReset.ClientRectangle.Y + (int)(SetNotesReset.ClientRectangle.Height / 2) - (int)(12 * scale), labelsize);
+
+
             fr.Render("Grid", (int)TLBox.ClientRectangle.X, (int)TLBox.ClientRectangle.Y - 26, 24);
 
             string[] lockedlist =
@@ -242,7 +251,7 @@ namespace Sound_Space_Editor.Gui
 
             var lockedstring = string.Join("\n>", lockedlist);
             var lockedwidth = fr.GetWidth(lockedstring, labelsize);
-            var lockedoffset = (_backButton.ClientRectangle.Width - lockedwidth) / 2;
+            var lockedoffset = _backButton.ClientRectangle.Width;
 
             fr.Render(lockedstring, (int)(_backButton.ClientRectangle.X + lockedoffset), (int)_backButton.ClientRectangle.Top - (labelsize + 2) * lockedlist.Count(), labelsize);
 
@@ -263,6 +272,7 @@ namespace Sound_Space_Editor.Gui
             StoreNodesBox.Render(delta, mouseX, mouseY);
             DrawBezierBox.Render(delta, mouseX, mouseY);
             AnchorNodeBox.Render(delta, mouseX, mouseY);
+            SetNotesBox.Render(delta, mouseX, mouseY);
 
             TLBox.Render(delta, mouseX, mouseY);
             TCBox.Render(delta, mouseX, mouseY);
@@ -350,6 +360,9 @@ namespace Sound_Space_Editor.Gui
             AnchorNodeBox.ClientRectangle.Size = SelectAllBox.ClientRectangle.Size;
             AnchorNodeReset.ClientRectangle.Size = SelectAllBox.ClientRectangle.Size;
 
+            SetNotesBox.ClientRectangle.Size = SelectAllBox.ClientRectangle.Size;
+            SetNotesReset.ClientRectangle.Size = SelectAllBox.ClientRectangle.Size;
+
             TLBox.ClientRectangle.Size = new SizeF(128 * widthdiff, 62 * heightdiff);
             TLReset.ClientRectangle.Size = TLBox.ClientRectangle.Size;
             TCBox.ClientRectangle.Size = TLBox.ClientRectangle.Size;
@@ -430,6 +443,8 @@ namespace Sound_Space_Editor.Gui
             AnchorNodeBox.ClientRectangle.Location = new PointF(HFlipBox.ClientRectangle.X, DrawBezierBox.ClientRectangle.Bottom + heightspace);
             AnchorNodeReset.ClientRectangle.Location = new PointF(HFlipReset.ClientRectangle.X, AnchorNodeBox.ClientRectangle.Y);
 
+            SetNotesBox.ClientRectangle.Location = new PointF(HFlipBox.ClientRectangle.X, AnchorNodeBox.ClientRectangle.Bottom + heightspace);
+            SetNotesReset.ClientRectangle.Location = new PointF(HFlipReset.ClientRectangle.X, SetNotesBox.ClientRectangle.Y);
 
             TLBox.ClientRectangle.Location = new PointF(size.Width - TLBox.ClientRectangle.Width * 3 - 10 * 2 * widthdiff - 150 * widthdiff, HFlipBox.ClientRectangle.Y);
             TLReset.ClientRectangle.Location = new PointF(TLBox.ClientRectangle.X, TLBox.ClientRectangle.Bottom + 4 * heightdiff);
@@ -496,6 +511,8 @@ namespace Sound_Space_Editor.Gui
                 return "DrawBezier";
             if (AnchorNodeBox.Focused)
                 return "AnchorNode";
+            if (SetNotesBox.Focused)
+                return "SetNotes";
 
             if (TLBox.Focused)
                 return "TL";
@@ -619,6 +636,10 @@ namespace Sound_Space_Editor.Gui
                     AnchorNodeBox.Text = key.ToString().ToUpper();
                     EditorSettings.AnchorNode = AssignKey(key);
                     break;
+                case "SetNotes":
+                    SetNotesBox.Text = key.ToString().ToUpper();
+                    EditorSettings.SetNotesColor = AssignKey(key);
+                    break;
                 case "TL":
                     TLBox.Text = key.ToString().ToUpper();
                     EditorSettings.GridKeys.TL = key;
@@ -677,6 +698,7 @@ namespace Sound_Space_Editor.Gui
             StoreNodesBox.OnMouseClick(x, y);
             DrawBezierBox.OnMouseClick(x, y);
             AnchorNodeBox.OnMouseClick(x, y);
+            SetNotesBox.OnMouseClick(x, y);
 
             TLBox.OnMouseClick(x, y);
             TCBox.OnMouseClick(x, y);
@@ -765,6 +787,10 @@ namespace Sound_Space_Editor.Gui
                 case 17:
                     EditorSettings.AnchorNode = ResetKey(Key.A, false, true, false);
                     AnchorNodeBox.Text = "A";
+                    break;
+                case 18:
+                    EditorSettings.SetNotesColor = ResetKey(Key.F, false, false, false);
+                    AnchorNodeBox.Text = "F";
                     break;
                 case 90:
                     EditorSettings.GridKeys.TL = Key.Q;

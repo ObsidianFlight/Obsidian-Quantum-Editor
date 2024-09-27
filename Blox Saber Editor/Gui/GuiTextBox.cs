@@ -20,6 +20,7 @@ namespace Sound_Space_Editor.Gui
 		public Color Color2;
 		private bool _focused;
 		private string _text = "";
+		private string _storedText = "";
 		private int _cursorPos;
 
 		private float _timer;
@@ -181,12 +182,17 @@ namespace Sound_Space_Editor.Gui
 		{
 			if (!ClientRectangle.Contains(x, y))
 			{
+				if(Focused == true && _text.Length == 0)
+                {
+					_text = _storedText;
+				}
 				Focused = false;
 				return;
 			}
 
 			if (_text.Length > 0)
             {
+				
 				var txwidthratio = Math.Max(0, EditorWindow.Instance.FontRenderer.GetWidth(_text, 24) / (ClientRectangle.Width - 4));
 				var txheight = (int)Math.Min(24, Math.Min(ClientRectangle.Height, 24 / txwidthratio));
 
@@ -199,6 +205,10 @@ namespace Sound_Space_Editor.Gui
 				posX = (float)Math.Floor(posX / letterwidth + 0.3);
 
 				_cursorPos = (int)posX;
+				
+				_cursorPos = 0;
+				_storedText = _text;
+				_text = "";
 			}
 
 			_timer = 0;
@@ -294,6 +304,7 @@ namespace Sound_Space_Editor.Gui
 					break;
 				case Key.Enter:
 				case Key.KeypadEnter:
+					_storedText = "";
 					if (!Focused)
 						OnChanged?.Invoke(null, Text);
 					else

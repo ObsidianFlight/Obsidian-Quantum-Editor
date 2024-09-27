@@ -46,6 +46,7 @@ namespace Sound_Space_Editor.Gui
 			if (EditorWindow.Instance.totalTime == TimeSpan.Zero)
 				return;
 
+			double prevX = 0;
 			for (int i = 0; i < EditorWindow.Instance.Notes.Count; i++)
 			{
 				var note = EditorWindow.Instance.Notes[i];
@@ -55,8 +56,12 @@ namespace Sound_Space_Editor.Gui
 				var x = rect.X + progress * rect.Width;
 				var y = rect.Y + rect.Height / 2f;
 
-				GL.Color4(Color1);
-				Glu.RenderQuad((int)x, y + rect.Height * 2, 1, rect.Height);
+                GL.Color4(EditorWindow.Instance.Notes[i].Color);
+				if(x > prevX + 1)
+                {
+					Glu.RenderQuad((int)x, y + rect.Height * 2, 1, rect.Height);
+					prevX = x;
+				}
 			}
 
 			for (int i = 0; i < Bookmarks.Count; i++)

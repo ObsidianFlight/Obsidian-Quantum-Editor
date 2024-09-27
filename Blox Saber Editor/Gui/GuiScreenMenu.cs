@@ -70,7 +70,10 @@ namespace Sound_Space_Editor.Gui
 			Buttons.Add(_importButton);
 			Buttons.Add(_SettingsButton);
 			Buttons.Add(_AutosavedButton);
-			Buttons.Add(_LastButton);
+			if(Settings.Default.LastFile != "" && File.Exists(Settings.Default.LastFile))
+            {
+				Buttons.Add(_LastButton);
+			}
 			Buttons.Add(ScrollBar);
 
 			CHANGELOGlabel.Color = Color.FromArgb(255, 255, 255);

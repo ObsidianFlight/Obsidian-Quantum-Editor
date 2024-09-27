@@ -23,7 +23,7 @@ namespace Sound_Space_Editor
             culture.NumberFormat.NumberDecimalSeparator = ".";
         }
 
-        public void OrderList()
+        public static void OrderList()
         {
             try 
             {
@@ -159,21 +159,42 @@ namespace Sound_Space_Editor
         {
             if (LayerBox.Value > 0)
             {
-                bool reset = false;
-                foreach (Layer layer in Colorset.layers)
+                removeLayer((int)LayerBox.Value);
+            }
+        }
+
+        public static void removeLayer(int layerNumber)
+        {
+            bool reset = false;
+            foreach (Layer layer in Colorset.layers)
+            {
+                if (layer.LayerNumber == layerNumber)
                 {
-                    if (layer.LayerNumber == LayerBox.Value)
+                    foreach(var note in EditorWindow.Instance.Notes._notes)
                     {
-                        Colorset.layers.Remove(layer);
-                        reset = true;
+                        if(note.layer == layer.LayerNumber)
+                        {
+                            note.layer = 0;
+                            note.Color = OpenTK.Graphics.Color4.White;
+                        }
                     }
-                    if (reset == true)
+                    Colorset.layers.Remove(layer);
+                }
+                if (layer.LayerNumber > layerNumber)
+                {
+                    foreach(var note in EditorWindow.Instance.Notes._notes)
                     {
-                        Colorset.DefaultColors();
-                        OrderList();
-                        ResetList();
-                        return;
+                        if(note.layer == layer.LayerNumber)
+                        {
+                            note.layer--;
+                        }
                     }
+                }
+                if (layer == Colorset.layers[Colorset.layers.Count - 1])
+                {
+                    Colorset.DefaultColors();
+                    OrderList();
+                    return;
                 }
             }
         }

@@ -51,6 +51,8 @@ namespace Sound_Space_Editor
 
 		public static GridKeySet GridKeys = new GridKeySet() { TL = Key.Q, TC = Key.W, TR = Key.E, ML = Key.A, MC = Key.S, MR = Key.D, BL = Key.Z, BC = Key.X, BR = Key.C };
 
+		public static KeyType SetNotesColor = new KeyType() { Key = Key.F, CTRL = false, SHIFT = false, ALT = false };
+
 		public static string Pattern0 = "";
 		public static string Pattern1 = "";
 		public static string Pattern2 = "";
@@ -158,6 +160,9 @@ namespace Sound_Space_Editor
 						GridKeys.BC = ConvertToKey(value[7]);
 						GridKeys.BR = ConvertToKey(value[8]);
 					}
+
+					if (keybinds.TryGetValue("setNotesColor", out value))
+						SetNotesColor = ConvertToKeybind(value);
 
 					if (keybinds.TryGetValue("patterns", out value))
                     {
@@ -294,6 +299,7 @@ namespace Sound_Space_Editor
 					{"anchorNode", new JsonArray(AnchorNode.Key.ToString(), AnchorNode.CTRL, AnchorNode.SHIFT, AnchorNode.ALT)},
 					{"gridKeys", new JsonArray(GridKeys.TL.ToString(), GridKeys.TC.ToString(), GridKeys.TR.ToString(), GridKeys.ML.ToString(), GridKeys.MC.ToString(), GridKeys.MR.ToString(), GridKeys.BL.ToString(), GridKeys.BC.ToString(), GridKeys.BR.ToString())},
 					{"patterns", new JsonArray(Pattern0, Pattern1, Pattern2, Pattern3, Pattern4, Pattern5, Pattern6, Pattern7, Pattern8, Pattern9)},
+					{"setNotesColor", new JsonArray(SetNotesColor.Key.ToString(), SetNotesColor.CTRL, SetNotesColor.SHIFT, SetNotesColor.ALT)},
 				}}
 			};
 			try

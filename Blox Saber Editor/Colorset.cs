@@ -312,6 +312,14 @@ namespace Sound_Space_Editor
                                 alternates.Colors.RemoveAt(colorNumber - 1);
                             }
                             catch { }
+                            if(alternates.Colors.Count == 0)
+                            {
+                                layer.Alternates.Remove(alternates);
+                            }
+                            if(layer.Alternates.Count == 0)
+                            {
+                                LayerViewer.removeLayer(layer.LayerNumber);
+                            }
                             return;
                         }
                     }
@@ -440,7 +448,7 @@ namespace Sound_Space_Editor
             }
             foreach (Note note in notes)
             {
-                if (layers[layer] != null)
+                if (layers.Count >= layer)
                 {
                     note.layer = layer;
                 }
@@ -457,8 +465,7 @@ namespace Sound_Space_Editor
                 {
                     try 
                     {
-                        note.Color = Color4.White;
-                        note.Color = Colors[0][(i + layers[0].Fade) % Colors[0].Count];
+                        note.Color = Colors[0][i % Colors[0].Count];
                         i++;
                     }
                     catch { }

@@ -226,7 +226,22 @@ namespace Sound_Space_Editor.Properties {
                 this["SeparateClickTools"] = value;
             }
         }
-        
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool MeowMeowMeow
+        {
+            get
+            {
+                return ((bool)(this["MeowMeowMeow"]));
+            }
+            set
+            {
+                this["MeowMeowMeow"] = value;
+            }
+        }
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("16")]

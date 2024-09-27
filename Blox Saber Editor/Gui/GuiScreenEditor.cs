@@ -16,6 +16,8 @@ namespace Sound_Space_Editor.Gui
 	{
 		public GuiScreen GuiScreen { get; private set; }
 
+		public static GuiScreenEditor Instance;
+
 		private List<GuiTextBox> Boxes = new List<GuiTextBox>();
 
 		public readonly GuiGrid Grid = new GuiGrid(300, 300);
@@ -28,7 +30,6 @@ namespace Sound_Space_Editor.Gui
 		public readonly GuiSlider NoteAlign;
 		public readonly GuiTextBox Offset;
 		public readonly GuiTextBox SfxOffset;
-		public readonly GuiTextBox JumpMSBox;
 		public readonly GuiTextBox RotateBox;
 		public readonly GuiTextBox BezierBox;
 		public readonly GuiCheckBox Autoplay;
@@ -46,15 +47,14 @@ namespace Sound_Space_Editor.Gui
 		//public readonly GuiCheckBox ClickToPlace;
 		public readonly GuiCheckBox SeparateClickTools;
 		//public readonly GuiCheckBox LegacyBPM;
+		public readonly GuiCheckBox inconspicuousCheckBox;
 
 		public readonly GuiButton BackButton;
 		public readonly GuiButton CopyButton;
-        public readonly GuiButton PlayButton;
 
         public static GuiLabel playLabel = new GuiLabel(0, 0, "If you hold SHIFT, the map will be played from the current time", "main", 15);
         public static GuiLabel noplayLabel = new GuiLabel(0, 0, "Not available, because the map is using a ROBLOX audio.", "main", 15);
 
-        public readonly GuiButton JumpMSButton;
 		public readonly GuiButton RotateButton;
 		public readonly GuiButton BezierButton;
 		public readonly GuiButton BezierStoreButton;
@@ -83,18 +83,13 @@ namespace Sound_Space_Editor.Gui
 		public readonly GuiSlider ColorRSlider;
 		public readonly GuiSlider ColorGSlider;
 		public readonly GuiSlider ColorBSlider;
-		public readonly GuiButton AddAlternate; //Creates new alternate and sets AlternatePicker to that Alternate, default is whatever AddColor would give.
 		public readonly GuiButton AddColor; //Adds a new color in a slot depending on ColorPicker
 		public readonly GuiButton ChangeColor; //Changes the color that ColorPicker is selecting
 		public readonly GuiButton DeleteColor; //Removes the color in the slot that ColorPicker is on.
-		public readonly GuiButton DeleteAlternate; //Removes the Alternate and all colors in it.
-		public readonly GuiButton ConfirmDelete; //Will display on the other side of the screen, used for confirm delete of the last pressed Delete Button
-												 //Only required on actual layers.
 		public readonly GuiTextBox ColorHex; //Displays the current color in hex, if entered manually will translate the hex to the slider and textboxes
 		public readonly GuiButton SetNotes; //Sets any selected notes to the layer in LayerPicker
 											//If layer 0 is selected, sets to that layer and gives them whatever color is in the layer.
 		public readonly GuiButton SetColor; //Sets 1st Color display to the current color
-		public readonly GuiButton SetComparison; //Sets 2nd Color display to the current color
 		public readonly GuiButton ReverseSelection; //Button lets you select colors from textboxes instead of sliders.
 
 		public readonly GuiTextBox ShiftLevel;
@@ -161,6 +156,8 @@ namespace Sound_Space_Editor.Gui
 
 		public GuiScreenEditor() : base(0, EditorWindow.Instance.ClientSize.Height - 64, EditorWindow.Instance.ClientSize.Width - 512 - 64, 64)
 		{
+			Instance = this;
+
 			if (File.Exists(Path.Combine(EditorWindow.Instance.LauncherDir, "background_editor.png")))
 			{
 				this.bgImg = true;
@@ -189,13 +186,6 @@ namespace Sound_Space_Editor.Gui
 				Centered = true,
 				Numeric = true,
 				CanBeNegative = false
-			};
-			JumpMSBox = new GuiTextBox(0, 0, 128, 32)
-			{
-				Text = "0",
-				Centered = true,
-				Numeric = true,
-				CanBeNegative = false,
 			};
 			MSBoundLower = new GuiTextBox(0, 0, 128, 32)
 			{
@@ -278,9 +268,7 @@ namespace Sound_Space_Editor.Gui
 
 			BackButton = new GuiButton(3, 0, 0, Grid.ClientRectangle.Width + 1, 42, "BACK TO MENU", false);
 			CopyButton = new GuiButton(4, 0, 0, Grid.ClientRectangle.Width + 1, 42, "COPY MAP DATA", false);
-            PlayButton = new GuiButton(21, 0, 0, Grid.ClientRectangle.Width + 1, 42, "PLAY MAP", false);
 
-            JumpMSButton = new GuiButton(6, 0, 0, 64, 32, "JUMP", false);
 			RotateButton = new GuiButton(7, 0, 0, 64, 32, "ROTATE", false);
 			BezierButton = new GuiButton(10, 0, 0, 64, 32, "DRAW", false);
 			BezierStoreButton = new GuiButton(13, 0, 0, 128, 32, "STORE NODES", false);
@@ -322,21 +310,21 @@ namespace Sound_Space_Editor.Gui
 			};
 			ColorR = new GuiTextBox(0, 0, 128, 32)
 			{
-				Text = "0",
+				Text = "255",
 				Centered = true,
 				Numeric = true,
 				CanBeNegative = false,
 			};
 			ColorG = new GuiTextBox(0, 0, 128, 32)
 			{
-				Text = "0",
+				Text = "255",
 				Centered = true,
 				Numeric = true,
 				CanBeNegative = false,
 			};
 			ColorB = new GuiTextBox(0, 0, 128, 32)
 			{
-				Text = "0",
+				Text = "255",
 				Centered = true,
 				Numeric = true,
 				CanBeNegative = false,
@@ -344,33 +332,29 @@ namespace Sound_Space_Editor.Gui
 			ColorRSlider = new GuiSlider(0, 0, 200, 32)
 			{
 				MaxValue = 255,
-				Value = 125,
+				Value = 255,
 			};
 			ColorGSlider = new GuiSlider(0, 0, 200, 32)
 			{
 				MaxValue = 255,
-				Value = 125,
+				Value = 255,
 			};
 			ColorBSlider = new GuiSlider(0, 0, 200, 32)
 			{
 				MaxValue = 255,
-				Value = 125,
+				Value = 255,
 			};
-			AddAlternate = new GuiButton(28, 0, 0, 128, 32, "ADD ALTERNATE", false);
 			AddColor = new GuiButton(29, 0, 0, 128, 32, "ADD COLOR", false);
 			ChangeColor = new GuiButton(30, 0, 0, 128, 32, "CHANGE COLOR", false);
 			DeleteColor = new GuiButton(31, 0, 0, 128, 32, "DELETE COLOR", false);
-			DeleteAlternate = new GuiButton(32, 0, 0, 128, 32, "DELETE ALTERNATE", false);
-			ConfirmDelete = new GuiButton(33, 0, 0, 128, 32, "CONFIRM DELETE", false);
 			ColorHex = new GuiTextBox(0, 0, 128, 32)
 			{
-				Text = "#",
+				Text = "#FFFFFF",
 				Centered = true,
 				Numeric = false,
 			};
 			SetNotes = new GuiButton(34, 0, 0, 128, 32, "SET NOTES", false);
 			SetColor = new GuiButton(37, 0, 0, 128, 32, "SET COLOR", false);
-			SetComparison = new GuiButton(35, 0, 0, 128, 32, "SET COMPARISON", false);
 			ReverseSelection = new GuiButton(36, 0, 0, 128, 32, "", false);
 			ShiftLevel = new GuiTextBox(0, 0, 128, 32)
 			{
@@ -403,6 +387,8 @@ namespace Sound_Space_Editor.Gui
 			CurveBezier = new GuiCheckBox(5, "Curve Bezier", 0, 0, 32, 32, Settings.Default.CurveBezier);
 			//ClickToPlace = new GuiCheckBox(5, "Click to Place", 0, 0, 32, 32, Settings.Default.ClickToPlace);
 			SeparateClickTools = new GuiCheckBox(5, "Separate Click Functions", 0, 0, 32, 32, Settings.Default.SeparateClickTools);
+			inconspicuousCheckBox = new GuiCheckBox(5, ":3", 0, 0, 32, 32, Settings.Default.MeowMeowMeow);
+
 			//LegacyBPM = new GuiCheckBox(5, "Use Legacy Panel", 0, 0, 24, 24, Settings.Default.LegacyBPM);
 
 			ScaleBox = new GuiTextBox(0, 0, 128, 32)
@@ -416,7 +402,6 @@ namespace Sound_Space_Editor.Gui
 
 			Offset.Focused = true;
 			SfxOffset.Focused = true;
-			JumpMSBox.Focused = true;
 			RotateBox.Focused = true;
 			BezierBox.Focused = true;
 			ScaleBox.Focused = true;
@@ -433,7 +418,6 @@ namespace Sound_Space_Editor.Gui
 
 			Offset.OnKeyDown(Key.Right, false);
 			SfxOffset.OnKeyDown(Key.Right, false);
-			JumpMSBox.OnKeyDown(Key.Right, false);
 			RotateBox.OnKeyDown(Key.Right, false);
 			BezierBox.OnKeyDown(Key.Right, false);
 			ScaleBox.OnKeyDown(Key.Right, false);
@@ -450,7 +434,6 @@ namespace Sound_Space_Editor.Gui
 
 			Offset.Focused = false;
 			SfxOffset.Focused = false;
-			JumpMSBox.Focused = false;
 			RotateBox.Focused = false;
 			BezierBox.Focused = false;
 			ScaleBox.Focused = false;
@@ -486,11 +469,10 @@ namespace Sound_Space_Editor.Gui
 			Buttons.Add(CurveBezier);
 			//Buttons.Add(ClickToPlace);
 			Buttons.Add(SeparateClickTools);
+			Buttons.Add(inconspicuousCheckBox);
 			//Buttons.Add(LegacyBPM);
 			Buttons.Add(BackButton);
 			Buttons.Add(CopyButton);
-            Buttons.Add(PlayButton);
-            Buttons.Add(JumpMSButton);
 			Buttons.Add(RotateButton);
 			Buttons.Add(OpenTimings);
 			Buttons.Add(OpenBookmarks);
@@ -505,20 +487,16 @@ namespace Sound_Space_Editor.Gui
 			Buttons.Add(ExportColorset);
 			Buttons.Add(VisualizeColors);
 			Buttons.Add(ManageLayers);
-			Buttons.Add(AddAlternate);
 			Buttons.Add(AddColor);
 			Buttons.Add(ColorRSlider);
 			Buttons.Add(ColorGSlider);
 			Buttons.Add(ColorBSlider);
 			Buttons.Add(SetColor);
-			Buttons.Add(SetComparison);
 			Buttons.Add(ReverseSelection);
 			Buttons.Add(ShiftDefault);
 			Buttons.Add(ApplyShift);
 			Buttons.Add(ChangeColor);
 			Buttons.Add(DeleteColor);
-			Buttons.Add(DeleteAlternate);
-			Buttons.Add(ConfirmDelete);
 			Buttons.Add(SetNotes);
 			Buttons.Add(OptionsNav);
 			Buttons.Add(TimingNav);
@@ -535,7 +513,6 @@ namespace Sound_Space_Editor.Gui
 
             Boxes.Add(Offset);
 			Boxes.Add(SfxOffset);
-			Boxes.Add(JumpMSBox);
 			Boxes.Add(RotateBox);
 			Boxes.Add(BezierBox);
 			Boxes.Add(ScaleBox);
@@ -561,6 +538,10 @@ namespace Sound_Space_Editor.Gui
 			TrackHeight.Value = Settings.Default.TrackHeight;
 			TrackCursorPos.Value = Settings.Default.CursorPos;
 			ApproachRate.Value = Settings.Default.ApproachRate;
+
+			ColorRSlider.Value = ColorRSlider.MaxValue;
+			ColorBSlider.Value = ColorBSlider.MaxValue;
+			ColorGSlider.Value = ColorGSlider.MaxValue;
 			// NoteAlign.Value = (int)(Settings.Default.NoteAlign * NoteAlign.MaxValue);
 
 			OnResize(EditorWindow.Instance.ClientSize);
@@ -654,21 +635,30 @@ namespace Sound_Space_Editor.Gui
 					fr.Render("Click Mode: " + (Settings.Default.SelectTool ? "Select" : "Place"), (int)BackButton.ClientRectangle.X, (int)BackButton.ClientRectangle.Bottom + 20, 24);
 			}
 
+			if (Settings.Default.MeowMeowMeow)
+            {
+				rl = true;
+            }
+            else
+            {
+				rl = false;
+            }
+
 			if (OptionsNavEnabled)
             {
 				if (rl)
                 {
 					var thw = fr.GetWidth("Twack Height~ 00", (int)Math.Min(24 * widthdiff, 24 * heightdiff));
-					fr.Render($"Twack Height~ {th}", (int)TrackHeight.ClientRectangle.Left - thw, (int)(SeparateClickTools.ClientRectangle.Bottom + 10 * heightdiff), (int)Math.Min(24 * widthdiff, 24 * heightdiff));
-					fr.Render($"Cuwsow Pos~ {TrackCursorPos.Value}%", (int)TrackCursorPos.ClientRectangle.X, (int)(SeparateClickTools.ClientRectangle.Bottom + 10 * heightdiff), (int)Math.Min(24 * widthdiff, 24 * heightdiff));
+					fr.Render($"Twack Height~ {th}", (int)TrackHeight.ClientRectangle.Left - thw, (int)(inconspicuousCheckBox.ClientRectangle.Bottom + 10 * heightdiff), (int)Math.Min(24 * widthdiff, 24 * heightdiff));
+					fr.Render($"Cuwsow Pos~ {TrackCursorPos.Value}%", (int)TrackCursorPos.ClientRectangle.X, (int)(inconspicuousCheckBox.ClientRectangle.Bottom + 10 * heightdiff), (int)Math.Min(24 * widthdiff, 24 * heightdiff));
 					var arw = fr.GetWidth($"Appwoach Wate~ 00", (int)Math.Min(24 * widthdiff, 24 * heightdiff));
 					fr.Render($"Appwoach Wate~ {ar}", (int)ApproachRate.ClientRectangle.Left - arw, (int)(Quantum.ClientRectangle.Y + 10 * heightdiff), (int)Math.Min(24 * widthdiff, 24 * heightdiff));
 				}
 				else
                 {
 					var thw = fr.GetWidth("Track Height: 00", (int)Math.Min(24 * widthdiff, 24 * heightdiff));
-					fr.Render($"Track Height: {th}", (int)TrackHeight.ClientRectangle.Left - thw, (int)(SeparateClickTools.ClientRectangle.Bottom + 10 * heightdiff), (int)Math.Min(24 * widthdiff, 24 * heightdiff));
-					fr.Render($"Cursor Pos: {TrackCursorPos.Value}%", (int)TrackCursorPos.ClientRectangle.X, (int)(SeparateClickTools.ClientRectangle.Bottom + 10 * heightdiff), (int)Math.Min(24 * widthdiff, 24 * heightdiff));
+					fr.Render($"Track Height: {th}", (int)TrackHeight.ClientRectangle.Left - thw, (int)(inconspicuousCheckBox.ClientRectangle.Bottom + 10 * heightdiff), (int)Math.Min(24 * widthdiff, 24 * heightdiff));
+					fr.Render($"Cursor Pos: {TrackCursorPos.Value}%", (int)TrackCursorPos.ClientRectangle.X, (int)(inconspicuousCheckBox.ClientRectangle.Bottom + 10 * heightdiff), (int)Math.Min(24 * widthdiff, 24 * heightdiff));
 					var arw = fr.GetWidth($"Approach Rate: 00", (int)Math.Min(24 * widthdiff, 24 * heightdiff));
 					fr.Render($"Approach Rate: {ar}", (int)ApproachRate.ClientRectangle.Left - arw, (int)(Quantum.ClientRectangle.Y + 10 * heightdiff), (int)Math.Min(24 * widthdiff, 24 * heightdiff));
 				}
@@ -676,17 +666,19 @@ namespace Sound_Space_Editor.Gui
 			if (rl)
             {
 				if (TimingNavEnabled)
+				{
 					fr.Render("Export Offset[ms]~", (int)Offset.ClientRectangle.X, (int)Offset.ClientRectangle.Y - 24, 24);
-				fr.Render("SFX Offset[ms]~", (int)SfxOffset.ClientRectangle.X, (int)SfxOffset.ClientRectangle.Y - 24, 24);
-				fr.Render("Jump to MS~", (int)JumpMSBox.ClientRectangle.X, (int)JumpMSBox.ClientRectangle.Y - 24, 24);
+					fr.Render("SFX Offset[ms]~", (int)SfxOffset.ClientRectangle.X, (int)SfxOffset.ClientRectangle.Y - 24, 24);
+				}
 				fr.Render("Sewect between MS~", (int)MSBoundLower.ClientRectangle.X, (int)MSBoundLower.ClientRectangle.Y - 24, 24);
 			}
 			else
             {
 				if (TimingNavEnabled)
+				{
 					fr.Render("Export Offset[ms]:", (int)Offset.ClientRectangle.X, (int)Offset.ClientRectangle.Y - 24, 24);
-				fr.Render("SFX Offset[ms]:", (int)SfxOffset.ClientRectangle.X, (int)SfxOffset.ClientRectangle.Y - 24, 24);
-				fr.Render("Jump to MS:", (int)JumpMSBox.ClientRectangle.X, (int)JumpMSBox.ClientRectangle.Y - 24, 24);
+					fr.Render("SFX Offset[ms]:", (int)SfxOffset.ClientRectangle.X, (int)SfxOffset.ClientRectangle.Y - 24, 24);
+				}
 				fr.Render("Select between MS:", (int)MSBoundLower.ClientRectangle.X, (int)MSBoundLower.ClientRectangle.Y - 24, 24);
 			}
 			if (PatternsNavEnabled)
@@ -708,22 +700,25 @@ namespace Sound_Space_Editor.Gui
             {
 				if (rl)
                 {
-					fr.Render("Pwease ask ow seawch on how to use these featuwes~", (int)ColorsNav.ClientRectangle.X, (int)ColorsNav.ClientRectangle.Y + 62, 16);
 					fr.Render("Layew", (int)LayerPicker.ClientRectangle.X, (int)LayerPicker.ClientRectangle.Y - 24, 24);
 					fr.Render("Awtewnate", (int)LayerPicker.ClientRectangle.X, (int)LayerPicker.ClientRectangle.Y - 24, 24);
 					fr.Render("Cowow", (int)LayerPicker.ClientRectangle.X, (int)LayerPicker.ClientRectangle.Y - 24, 24);
 				}
                 else
                 {
-					fr.Render("Please ask or search on how to use these features.", (int)ColorsNav.ClientRectangle.X, (int)ColorsNav.ClientRectangle.Y + 62, 16);
 					fr.Render("Layer", (int)LayerPicker.ClientRectangle.X, (int)LayerPicker.ClientRectangle.Y - 24, 24);
 					fr.Render("Alternate", (int)AlternatePicker.ClientRectangle.X, (int)AlternatePicker.ClientRectangle.Y - 24, 24);
 					fr.Render("Color", (int)ColorPicker.ClientRectangle.X, (int)ColorPicker.ClientRectangle.Y - 24, 24);
 				}
 				GL.Color4(Colorset.currentColor);
-				Glu.RenderQuad(OptionsNav.ClientRectangle.X + 10, LayerPicker.ClientRectangle.Bottom + 10, 60, 60);
-				GL.Color4(Colorset.previousColor);
-				Glu.RenderQuad(OptionsNav.ClientRectangle.X + 10, LayerPicker.ClientRectangle.Bottom + 80, 60, 60);
+				Glu.RenderQuad(OptionsNav.ClientRectangle.X + 10 * widthdiff, LayerPicker.ClientRectangle.Bottom + 10 * heightdiff, 60 * widthdiff, 60 * heightdiff);
+				try
+				{
+					Colorset.previousColor = new OpenTK.Graphics.Color4((float)Int32.Parse(ColorR.Text) / 255, (float)Int32.Parse(ColorG.Text) / 255, (float)Int32.Parse(ColorB.Text) / 255, 255);
+				}
+                catch { }
+					GL.Color4(Colorset.previousColor);
+				Glu.RenderQuad(OptionsNav.ClientRectangle.X + 10 * widthdiff, LayerPicker.ClientRectangle.Bottom + 80 * heightdiff, 60 * widthdiff, 60 * heightdiff);
 				if(ColorsDisplayEnabled == true)
                 {
 					int colorAmount = 0;
@@ -737,29 +732,32 @@ namespace Sound_Space_Editor.Gui
 					List<OpenTK.Graphics.Color4> colorList = Colorset.ColorList(layerNumber);
 					try
 					{
-						for (int i = 0; i < colorAmount; i++)
+						if (Colorset.layers.Count >= Int32.Parse(LayerPicker.Text) + 1)
 						{
-							try
-							{
-								GL.Color4(colorList[i]);
-								Glu.RenderQuad(OpenColorset.ClientRectangle.X + 200, ColorsNav.ClientRectangle.Bottom + 10 + (i * 8), 30, 7);
-							}
-							catch { Console.WriteLine("Visualizing Colorset Failed!"); }
-						}
-						for (int i = 0; i < Colorset.layers[Int32.Parse(LayerPicker.Text)].Alternates.Count; i++)
-						{
-							for (int k = 0; k < Colorset.layers[Int32.Parse(LayerPicker.Text)].Alternates[i].Colors.Count; k++)
+							for (int i = 0; i < colorAmount; i++)
 							{
 								try
 								{
-									GL.Color4(Colorset.layers[Int32.Parse(LayerPicker.Text)].Alternates[i].Colors[k]);
-									Glu.RenderQuad(OpenColorset.ClientRectangle.X + 232 + (i * 12), ColorsNav.ClientRectangle.Bottom + 10 + (k * 8), 10, 7);
+									GL.Color4(colorList[i]);
+									Glu.RenderQuad(OpenColorset.ClientRectangle.X + 200, ColorsNav.ClientRectangle.Bottom + 10 + (i * 8), 30, 7);
 								}
-								catch { Console.WriteLine("Rendering Color Failed!"); }
+								catch { }
+							}
+							for (int i = 0; i < Colorset.layers[Int32.Parse(LayerPicker.Text)].Alternates.Count; i++)
+							{
+								for (int k = 0; k < Colorset.layers[Int32.Parse(LayerPicker.Text)].Alternates[i].Colors.Count; k++)
+								{
+									try
+									{
+										GL.Color4(Colorset.layers[Int32.Parse(LayerPicker.Text)].Alternates[i].Colors[k]);
+										Glu.RenderQuad(OpenColorset.ClientRectangle.X + 232 + (i * 12), ColorsNav.ClientRectangle.Bottom + 10 + (k * 8), 10, 7);
+									}
+									catch { }
+								}
 							}
 						}
                     }
-                    catch { Console.WriteLine("Major Failure in Visualizing Colorset!"); }
+                    catch {}
                 }
 			}
 			GL.Color3(Color1);
@@ -966,7 +964,6 @@ namespace Sound_Space_Editor.Gui
 		{
 			Offset.OnKeyTyped(key);
 			SfxOffset.OnKeyTyped(key);
-			JumpMSBox.OnKeyTyped(key);
 			RotateBox.OnKeyTyped(key);
 			BezierBox.OnKeyTyped(key);
 			ScaleBox.OnKeyTyped(key);
@@ -988,7 +985,6 @@ namespace Sound_Space_Editor.Gui
 		{
 			Offset.OnKeyDown(key, control);
 			SfxOffset.OnKeyDown(key, control);
-			JumpMSBox.OnKeyDown(key, control);
 			RotateBox.OnKeyDown(key, control);
 			BezierBox.OnKeyDown(key, control);
 			ScaleBox.OnKeyDown(key, control);
@@ -1010,7 +1006,6 @@ namespace Sound_Space_Editor.Gui
 		{
 			Offset.OnMouseClick(x, y);
 			SfxOffset.OnMouseClick(x, y);
-			JumpMSBox.OnMouseClick(x, y);
 			RotateBox.OnMouseClick(x, y);
 			BezierBox.OnMouseClick(x, y);
 			ScaleBox.OnMouseClick(x, y);
@@ -1059,12 +1054,15 @@ namespace Sound_Space_Editor.Gui
 			ApproachRate.Visible = false;
 			//ClickToPlace.Visible = false;
 			SeparateClickTools.Visible = false;
+			inconspicuousCheckBox.Visible = false;
 
 			//timing
 			Offset.Visible = false;
 			UseCurrentMs.Visible = false;
 			OpenTimings.Visible = false;
 			OpenBookmarks.Visible = false;
+			SfxOffset.Visible = false;
+
 
 			//patterns
 			RotateBox.Visible = false;
@@ -1096,16 +1094,12 @@ namespace Sound_Space_Editor.Gui
 			ColorRSlider.Visible = false;
 			ColorGSlider.Visible = false;
 			ColorBSlider.Visible = false;
-			AddAlternate.Visible = false;
 			AddColor.Visible = false;
 			ChangeColor.Visible = false;
 			DeleteColor.Visible = false;
-			DeleteAlternate.Visible = false;
-			ConfirmDelete.Visible = false;
 			ColorHex.Visible = false;
 			SetNotes.Visible = false;
 			SetColor.Visible = false;
-			SetComparison.Visible = false;
 			ReverseSelection.Visible = false;
 			ShiftLevel.Visible = false;
 			ShiftDefault.Visible = false;
@@ -1134,6 +1128,7 @@ namespace Sound_Space_Editor.Gui
 				ApproachRate.Visible = true;
 				//ClickToPlace.Visible = true;
 				SeparateClickTools.Visible = true;
+				inconspicuousCheckBox.Visible = true;
 
 				TimingNav.ClientRectangle.Y = TrackCursorPos.ClientRectangle.Bottom + 20 * heightdiff;
 				PatternsNav.ClientRectangle.Y = TimingNav.ClientRectangle.Bottom + 10 * heightdiff;
@@ -1148,6 +1143,7 @@ namespace Sound_Space_Editor.Gui
 				UseCurrentMs.Visible = true;
 				OpenTimings.Visible = true;
 				OpenBookmarks.Visible = true;
+				SfxOffset.Visible = true;
 
 				PatternsNav.ClientRectangle.Y = OpenBookmarks.ClientRectangle.Bottom + 20 * heightdiff;
 				ColorsNav.ClientRectangle.Y = PatternsNav.ClientRectangle.Bottom + 10 * heightdiff;
@@ -1192,16 +1188,12 @@ namespace Sound_Space_Editor.Gui
 				ColorRSlider.Visible = true;
 				ColorGSlider.Visible = true;
 				ColorBSlider.Visible = true;
-				AddAlternate.Visible = true;
 				AddColor.Visible = true;
 				ChangeColor.Visible = true;
 				DeleteColor.Visible = true;
-				DeleteAlternate.Visible = true;
-				ConfirmDelete.Visible = true;
 				ColorHex.Visible = true;
 				SetNotes.Visible = true;
 				SetColor.Visible = true;
-				SetComparison.Visible = true;
 				ReverseSelection.Visible = true;
 				SetColor.Visible = true;
 				ShiftLevel.Visible = true;
@@ -1214,141 +1206,114 @@ namespace Sound_Space_Editor.Gui
 
 		protected override void OnButtonClicked(int id)
 		{
-			int ad1 = Int32.Parse(LayerPicker.Text);
-			int ad2 = Int32.Parse(AlternatePicker.Text);
-			int ad3 = Int32.Parse(ColorPicker.Text);
-			switch (id)
+			try
 			{
-				case 0:
-					if (EditorWindow.Instance.MusicPlayer.IsPlaying)
-						EditorWindow.Instance.MusicPlayer.Pause();
-					else
-                    {
-						if (EditorWindow.Instance.currentTime.TotalMilliseconds >= EditorWindow.Instance.totalTime.TotalMilliseconds - 1)
-							EditorWindow.Instance.currentTime = TimeSpan.FromMilliseconds(0);
-						EditorWindow.Instance.MusicPlayer.Play();
-					}
-					break;
-				case 3:
-					if (EditorWindow.Instance.WillClose())
-					{
-						EditorWindow.Instance.UndoRedo.Clear();
-						EditorWindow.Instance.Notes.Clear();
-						EditorWindow.Instance.SelectedNotes.Clear();
-						EditorWindow.Instance.MusicPlayer.Reset();
-						EditorWindow.Instance.OpenGuiScreen(new GuiScreenMenu());
-						EditorWindow.Instance.UpdateActivity("Sitting in the menu");
-					}
-					break;
-				case 4:
-                    try
-                    {
-                        Clipboard.SetText(EditorWindow.Instance.ParseData(true));
-                        ShowToast("COPIED TO CLIPBOARD", Color.FromArgb(0, 255, 200));
-                    }
-                    catch
-                    {
-						ShowToast("FAILED TO COPY", Color.FromArgb(255, 200, 0));
-                    }
-					break;
-                case 21:
-					// play button
-					if (EditorWindow.Instance.ActualAudio.Length == 0) return;
-                    EditorWindow.Instance.ToggleGrid(false);
-                    try
-					{
-                        string path = EditorWindow.Instance.ActualAudioPath.Replace(".", "{DOT}").Replace(" ", "{SPC}");
-
-                        File.WriteAllText("temp.txt", EditorWindow.Instance.ParseData(false));
-                        string color1 = string.Format("{0:X2}{1:X2}{2:X2}", EditorSettings.Color1.R, EditorSettings.Color1.G, EditorSettings.Color1.B);
-                        string color2 = string.Format("{0:X2}{1:X2}{2:X2}", EditorSettings.Color2.R, EditorSettings.Color2.G, EditorSettings.Color2.B);
-
-                        string at = EditorSettings.ApproachTime.ToString().Replace(",", ".");
-                        string vol = EditorWindow.Instance.MusicPlayer.Volume.ToString().Replace(',', '.');
-
-
-                        if (EditorWindow.Instance._shiftDown)
-                        {
-                            System.Diagnostics.Process p = new System.Diagnostics.Process();
-                            p.StartInfo.FileName = "MapPlayer.exe";
-                            p.StartInfo.Arguments = string.Format(">>md={0} >>aud={1} >>at={2} >>ad={3} >>sf={4} >>sm={5} >>chroma={6},{7} >>sens={8} >>motion={9} >>vol={10} >>thirds", "temp.txt", path, at, EditorSettings.ApproachDistance, EditorWindow.Instance.currentTime.TotalSeconds, EditorWindow.Instance.tempo, color1, color2, EditorSettings.Sensitivity, EditorSettings.Parallax, vol);
-                            Console.WriteLine(p.StartInfo.Arguments);
-                            p.Start();
-                            p.WaitForExit();
-                            File.Delete("temp.txt");
-                            EditorWindow.Instance._shiftDown = false;
-                        }
-                        else
-                        {
-                            System.Diagnostics.Process p = new System.Diagnostics.Process();
-                            p.StartInfo.FileName = "MapPlayer.exe";
-                            p.StartInfo.Arguments = string.Format(">>md={0} >>aud={1} >>at={2} >>ad={3} >>sf={4} >>sm={5} >>chroma={6},{7} >>sens={8} >>motion={9} >>vol={10} >>thirds", "temp.txt", path, at, EditorSettings.ApproachDistance, 0, EditorWindow.Instance.tempo, color1, color2, EditorSettings.Sensitivity, EditorSettings.Parallax, vol);
-                            Console.WriteLine(p.StartInfo.Arguments);
-                            p.Start();
-                            p.WaitForExit();
-                            File.Delete("temp.txt");
-                        }
-                    } catch
-					{
-                        EditorWindow.Instance.ToggleGrid(true);
-                    }
-                    EditorWindow.Instance.ToggleGrid(true);
-                    break;
-                case 5:
-					Settings.Default.Autoplay = Autoplay.Toggle;
-					Settings.Default.ApproachSquares = ApproachSquares.Toggle;
-					Settings.Default.GridNumbers = GridNumbers.Toggle;
-					Settings.Default.GridLetters = GridLetters.Toggle;
-					Settings.Default.Quantum = Quantum.Toggle;
-					Settings.Default.AutoAdvance = AutoAdvance.Toggle;
-					Settings.Default.Numpad = Numpad.Toggle;
-					Settings.Default.QuantumGridLines = QuantumGridLines.Toggle;
-					Settings.Default.QuantumGridSnap = QuantumGridSnap.Toggle;
-					Settings.Default.Metronome = Metronome.Toggle;
-					Settings.Default.SfxOffset = SfxOffset.Text;
-					//Settings.Default.DynamicBezier = DynamicBezier.Toggle;
-					Settings.Default.CurveBezier = CurveBezier.Toggle;
-					//Settings.Default.ClickToPlace = ClickToPlace.Toggle;
-					Settings.Default.SeparateClickTools = SeparateClickTools.Toggle;
-					//Settings.Default.LegacyBPM = LegacyBPM.Toggle;
-					Settings.Default.Save();
-					EditorSettings.RefreshKeymapping();
-					break;
-				case 6:
-					if (long.TryParse(JumpMSBox.Text, out var time))
-                    {
-						if (time <= EditorWindow.Instance.totalTime.TotalMilliseconds)
-							EditorWindow.Instance.currentTime = TimeSpan.FromMilliseconds(time);
-					}
-					break;
-				case 7:
-					var degrees = float.Parse(RotateBox.Text);
-					var nodes = EditorWindow.Instance.SelectedNotes.ToList();
-
-					foreach (var node in nodes)
-                    {
-						var angle = MathHelper.RadiansToDegrees(Math.Atan2(node.Y - 1, node.X - 1));
-						var distance = Math.Sqrt(Math.Pow(node.X - 1, 2) + Math.Pow(node.Y - 1, 2));
-						var finalradians = MathHelper.DegreesToRadians(angle + degrees);
-
-						node.X = (float)(Math.Cos(finalradians) * distance + 1);
-						node.Y = (float)(Math.Sin(finalradians) * distance + 1);
-                    }
-					EditorWindow.Instance.UndoRedo.AddUndoRedo("ROTATE " + degrees.ToString(), () =>
-					{
-						var undodeg = 360 - degrees;
-
-						foreach (var node in nodes)
+				int ad1 = Int32.Parse(LayerPicker.Text);
+				int ad2 = Int32.Parse(AlternatePicker.Text);
+				int ad3 = Int32.Parse(ColorPicker.Text);
+				switch (id)
+				{
+					case 0:
+						if (EditorWindow.Instance.MusicPlayer.IsPlaying)
+							EditorWindow.Instance.MusicPlayer.Pause();
+						else
 						{
-							var angle = MathHelper.RadiansToDegrees(Math.Atan2(node.Y - 1, node.X - 1));
-							var distance = Math.Sqrt(Math.Pow(node.X - 1, 2) + Math.Pow(node.Y - 1, 2));
-							var finalradians = MathHelper.DegreesToRadians(angle + undodeg);
-
-							node.X = (float)(Math.Cos(finalradians) * distance + 1);
-							node.Y = (float)(Math.Sin(finalradians) * distance + 1);
+							if (EditorWindow.Instance.currentTime.TotalMilliseconds >= EditorWindow.Instance.totalTime.TotalMilliseconds - 1)
+								EditorWindow.Instance.currentTime = TimeSpan.FromMilliseconds(0);
+							EditorWindow.Instance.MusicPlayer.Play();
 						}
-					}, () =>
-					{
+						break;
+					case 3:
+						if (EditorWindow.Instance.WillClose())
+						{
+							EditorWindow.Instance.UndoRedo.Clear();
+							EditorWindow.Instance.Notes.Clear();
+							EditorWindow.Instance.SelectedNotes.Clear();
+							EditorWindow.Instance.MusicPlayer.Reset();
+							EditorWindow.Instance.OpenGuiScreen(new GuiScreenMenu());
+							EditorWindow.Instance.UpdateActivity("Sitting in the menu");
+						}
+						break;
+					case 4:
+						try
+						{
+							Clipboard.SetText(EditorWindow.Instance.ParseData(true));
+							ShowToast("COPIED TO CLIPBOARD", Color.FromArgb(0, 255, 200));
+						}
+						catch
+						{
+							ShowToast("FAILED TO COPY", Color.FromArgb(255, 200, 0));
+						}
+						break;
+					case 21:
+						// play button
+						if (EditorWindow.Instance.ActualAudio.Length == 0) return;
+						EditorWindow.Instance.ToggleGrid(false);
+						try
+						{
+							string path = EditorWindow.Instance.ActualAudioPath.Replace(".", "{DOT}").Replace(" ", "{SPC}");
+
+							File.WriteAllText("temp.txt", EditorWindow.Instance.ParseData(false));
+							string color1 = string.Format("{0:X2}{1:X2}{2:X2}", EditorSettings.Color1.R, EditorSettings.Color1.G, EditorSettings.Color1.B);
+							string color2 = string.Format("{0:X2}{1:X2}{2:X2}", EditorSettings.Color2.R, EditorSettings.Color2.G, EditorSettings.Color2.B);
+
+							string at = EditorSettings.ApproachTime.ToString().Replace(",", ".");
+							string vol = EditorWindow.Instance.MusicPlayer.Volume.ToString().Replace(',', '.');
+
+
+							if (EditorWindow.Instance._shiftDown)
+							{
+								System.Diagnostics.Process p = new System.Diagnostics.Process();
+								p.StartInfo.FileName = "MapPlayer.exe";
+								p.StartInfo.Arguments = string.Format(">>md={0} >>aud={1} >>at={2} >>ad={3} >>sf={4} >>sm={5} >>chroma={6},{7} >>sens={8} >>motion={9} >>vol={10} >>thirds", "temp.txt", path, at, EditorSettings.ApproachDistance, EditorWindow.Instance.currentTime.TotalSeconds, EditorWindow.Instance.tempo, color1, color2, EditorSettings.Sensitivity, EditorSettings.Parallax, vol);
+								Console.WriteLine(p.StartInfo.Arguments);
+								p.Start();
+								p.WaitForExit();
+								File.Delete("temp.txt");
+								EditorWindow.Instance._shiftDown = false;
+							}
+							else
+							{
+								System.Diagnostics.Process p = new System.Diagnostics.Process();
+								p.StartInfo.FileName = "MapPlayer.exe";
+								p.StartInfo.Arguments = string.Format(">>md={0} >>aud={1} >>at={2} >>ad={3} >>sf={4} >>sm={5} >>chroma={6},{7} >>sens={8} >>motion={9} >>vol={10} >>thirds", "temp.txt", path, at, EditorSettings.ApproachDistance, 0, EditorWindow.Instance.tempo, color1, color2, EditorSettings.Sensitivity, EditorSettings.Parallax, vol);
+								Console.WriteLine(p.StartInfo.Arguments);
+								p.Start();
+								p.WaitForExit();
+								File.Delete("temp.txt");
+							}
+						}
+						catch
+						{
+							EditorWindow.Instance.ToggleGrid(true);
+						}
+						EditorWindow.Instance.ToggleGrid(true);
+						break;
+					case 5:
+						Settings.Default.Autoplay = Autoplay.Toggle;
+						Settings.Default.ApproachSquares = ApproachSquares.Toggle;
+						Settings.Default.GridNumbers = GridNumbers.Toggle;
+						Settings.Default.GridLetters = GridLetters.Toggle;
+						Settings.Default.Quantum = Quantum.Toggle;
+						Settings.Default.AutoAdvance = AutoAdvance.Toggle;
+						Settings.Default.Numpad = Numpad.Toggle;
+						Settings.Default.QuantumGridLines = QuantumGridLines.Toggle;
+						Settings.Default.QuantumGridSnap = QuantumGridSnap.Toggle;
+						Settings.Default.Metronome = Metronome.Toggle;
+						Settings.Default.SfxOffset = SfxOffset.Text;
+						//Settings.Default.DynamicBezier = DynamicBezier.Toggle;
+						Settings.Default.CurveBezier = CurveBezier.Toggle;
+						//Settings.Default.ClickToPlace = ClickToPlace.Toggle;
+						Settings.Default.SeparateClickTools = SeparateClickTools.Toggle;
+						Settings.Default.MeowMeowMeow = inconspicuousCheckBox.Toggle;
+						//Settings.Default.LegacyBPM = LegacyBPM.Toggle;
+						Settings.Default.Save();
+						EditorSettings.RefreshKeymapping();
+						break;
+					case 7:
+						var degrees = float.Parse(RotateBox.Text);
+						var nodes = EditorWindow.Instance.SelectedNotes.ToList();
+
 						foreach (var node in nodes)
 						{
 							var angle = MathHelper.RadiansToDegrees(Math.Atan2(node.Y - 1, node.X - 1));
@@ -1358,394 +1323,410 @@ namespace Sound_Space_Editor.Gui
 							node.X = (float)(Math.Cos(finalradians) * distance + 1);
 							node.Y = (float)(Math.Sin(finalradians) * distance + 1);
 						}
-					});
-					break;
-				case 8:
-					/*
-					void openGui()
-					{
-						if (TimingPoints != null)
+						EditorWindow.Instance.UndoRedo.AddUndoRedo("ROTATE " + degrees.ToString(), () =>
 						{
-							TimingPoints.Close();
-						}
-					TimingPoints = new TimingPoints();
-					TimingPoints.Run();
-					}
+							var undodeg = 360 - degrees;
 
-					Thread t = new Thread(new ThreadStart(openGui));
-					t.Start();
-					*/
-					if (TimingsWindow.inst != null)
-						TimingsWindow.inst.Close();
-					new TimingsWindow().Show();
-					break;
-				case 20:
-					if (BookmarkSetup.inst != null)
-						BookmarkSetup.inst.Close();
-					new BookmarkSetup().Show();
-					break;
-				case 9:
-					Offset.Text = ((long)EditorWindow.Instance.currentTime.TotalMilliseconds).ToString();
-					break;
-				case 10:
-					if (int.TryParse(BezierBox.Text, out var divisor) && divisor > 0 && ((beziernodes != null && beziernodes.Count > 1) || EditorWindow.Instance.SelectedNotes.Count > 1))
-					{
-						var success = true;
-						var finalnodes = EditorWindow.Instance.SelectedNotes.ToList();
-						if (beziernodes != null && beziernodes.Count > 1)
-							finalnodes = beziernodes;
-						var finalnotes = new List<Note>();
-
-						var anchored = new List<int>() { 0 };
-
-						for (int i = 0; i < finalnodes.Count; i++)
-						{
-							if (finalnodes[i].Anchored && !anchored.Contains(i))
-								anchored.Add(i);
-						}
-						if (!anchored.Contains(finalnodes.Count - 1))
-							anchored.Add(finalnodes.Count - 1);
-
-						for (int i = 1; i < anchored.Count; i++)
-						{
-							var newnodes = new List<Note>();
-							for (int j = anchored[i - 1]; j <= anchored[i]; j++)
+							foreach (var node in nodes)
 							{
-								newnodes.Add(finalnodes[j]);
+								var angle = MathHelper.RadiansToDegrees(Math.Atan2(node.Y - 1, node.X - 1));
+								var distance = Math.Sqrt(Math.Pow(node.X - 1, 2) + Math.Pow(node.Y - 1, 2));
+								var finalradians = MathHelper.DegreesToRadians(angle + undodeg);
+
+								node.X = (float)(Math.Cos(finalradians) * distance + 1);
+								node.Y = (float)(Math.Sin(finalradians) * distance + 1);
 							}
-							var finalbez = EditorWindow.Instance.Bezier(newnodes, divisor);
-							success = finalbez != null;
-							if (success)
-								finalnotes = EditorWindow.Instance.CombineLists(finalnotes, EditorWindow.Instance.Bezier(newnodes, divisor));
-						}
-
-						EditorWindow.Instance.SelectedNotes.Clear();
-						if (!Settings.Default.CurveBezier)
-							finalnodes = new List<Note>();
-						else
-							finalnotes.Add(finalnodes[0]);
-
-						if (success)
-							EditorWindow.Instance.UndoRedoBezier(finalnotes, finalnodes);
-					}
-					break;
-				case 11:
-					var selectedH = EditorWindow.Instance.SelectedNotes.ToList();
-					foreach (var node in selectedH)
-					{
-						node.X = 2 - node.X;
-					}
-
-					EditorWindow.Instance.UndoRedo.AddUndoRedo("HORIZONTAL FLIP", () =>
-					{
-						foreach (var node in selectedH)
+						}, () =>
 						{
-							node.X = 2 - node.X;
-						}
-
-					}, () =>
-					{
-						foreach (var node in selectedH)
-						{
-							node.X = 2 - node.X;
-						}
-
-					});
-					break;
-				case 12:
-					var selectedV = EditorWindow.Instance.SelectedNotes.ToList();
-					foreach (var node in selectedV)
-					{
-						node.Y = 2 - node.Y;
-					}
-
-					EditorWindow.Instance.UndoRedo.AddUndoRedo("VERTICAL FLIP", () =>
-					{
-						foreach (var node in selectedV)
-						{
-							node.Y = 2 - node.Y;
-						}
-
-					}, () =>
-					{
-						foreach (var node in selectedV)
-						{
-							node.Y = 2 - node.Y;
-						}
-
-					});
-					break;
-				case 13:
-					if (EditorWindow.Instance.SelectedNotes.Count > 1)
-						beziernodes = EditorWindow.Instance.SelectedNotes.ToList();
-					break;
-				case 14:
-					if (beziernodes != null)
-						beziernodes.Clear();
-					break;
-				case 15:
-					OptionsNavEnabled = !OptionsNavEnabled;
-					TimingNavEnabled = false;
-					PatternsNavEnabled = false;
-					ColorsNavEnabled = false;
-					HideShowElements();
-					break;
-				case 16:
-					OptionsNavEnabled = false;
-					TimingNavEnabled = !TimingNavEnabled;
-					PatternsNavEnabled = false;
-					ColorsNavEnabled = false;
-					HideShowElements();
-					break;
-				case 17:
-					OptionsNavEnabled = false;
-					TimingNavEnabled = false;
-					PatternsNavEnabled = !PatternsNavEnabled;
-					ColorsNavEnabled = false;
-					HideShowElements();
-					break;
-				case 18:
-					if (int.TryParse(ScaleBox.Text, out var scale))
-                    {
-						var scalef = scale / 100f;
-						var selected = EditorWindow.Instance.SelectedNotes.ToList();
-						foreach (var note in selected)
-                        {
-							note.X = (note.X - 1) * scalef + 1;
-							note.Y = (note.Y - 1) * scalef + 1;
-                        }
-
-						EditorWindow.Instance.UndoRedo.AddUndoRedo($"SCALE {scale}%", () =>
-						{
-							foreach (var note in selected)
+							foreach (var node in nodes)
 							{
-								note.X = (note.X - 1) / scalef + 1;
-								note.Y = (note.Y - 1) / scalef + 1;
+								var angle = MathHelper.RadiansToDegrees(Math.Atan2(node.Y - 1, node.X - 1));
+								var distance = Math.Sqrt(Math.Pow(node.X - 1, 2) + Math.Pow(node.Y - 1, 2));
+								var finalradians = MathHelper.DegreesToRadians(angle + degrees);
+
+								node.X = (float)(Math.Cos(finalradians) * distance + 1);
+								node.Y = (float)(Math.Sin(finalradians) * distance + 1);
+							}
+						});
+						break;
+					case 8:
+						/*
+						void openGui()
+						{
+							if (TimingPoints != null)
+							{
+								TimingPoints.Close();
+							}
+						TimingPoints = new TimingPoints();
+						TimingPoints.Run();
+						}
+
+						Thread t = new Thread(new ThreadStart(openGui));
+						t.Start();
+						*/
+						if (TimingsWindow.inst != null)
+							TimingsWindow.inst.Close();
+						new TimingsWindow().Show();
+						break;
+					case 20:
+						if (BookmarkSetup.inst != null)
+							BookmarkSetup.inst.Close();
+						new BookmarkSetup().Show();
+						break;
+					case 9:
+						Offset.Text = ((long)EditorWindow.Instance.currentTime.TotalMilliseconds).ToString();
+						break;
+					case 10:
+						if (int.TryParse(BezierBox.Text, out var divisor) && divisor > 0 && ((beziernodes != null && beziernodes.Count > 1) || EditorWindow.Instance.SelectedNotes.Count > 1))
+						{
+							var success = true;
+							var finalnodes = EditorWindow.Instance.SelectedNotes.ToList();
+							if (beziernodes != null && beziernodes.Count > 1)
+								finalnodes = beziernodes;
+							var finalnotes = new List<Note>();
+
+							var anchored = new List<int>() { 0 };
+
+							for (int i = 0; i < finalnodes.Count; i++)
+							{
+								if (finalnodes[i].Anchored && !anchored.Contains(i))
+									anchored.Add(i);
+							}
+							if (!anchored.Contains(finalnodes.Count - 1))
+								anchored.Add(finalnodes.Count - 1);
+
+							for (int i = 1; i < anchored.Count; i++)
+							{
+								var newnodes = new List<Note>();
+								for (int j = anchored[i - 1]; j <= anchored[i]; j++)
+								{
+									newnodes.Add(finalnodes[j]);
+								}
+								var finalbez = EditorWindow.Instance.Bezier(newnodes, divisor);
+								success = finalbez != null;
+								if (success)
+									finalnotes = EditorWindow.Instance.CombineLists(finalnotes, EditorWindow.Instance.Bezier(newnodes, divisor));
+							}
+
+							EditorWindow.Instance.SelectedNotes.Clear();
+							if (!Settings.Default.CurveBezier)
+								finalnodes = new List<Note>();
+							else
+								finalnotes.Add(finalnodes[0]);
+
+							if (success)
+								EditorWindow.Instance.UndoRedoBezier(finalnotes, finalnodes);
+						}
+						break;
+					case 11:
+						var selectedH = EditorWindow.Instance.SelectedNotes.ToList();
+						foreach (var node in selectedH)
+						{
+							node.X = 2 - node.X;
+						}
+
+						EditorWindow.Instance.UndoRedo.AddUndoRedo("HORIZONTAL FLIP", () =>
+						{
+							foreach (var node in selectedH)
+							{
+								node.X = 2 - node.X;
 							}
 
 						}, () =>
 						{
+							foreach (var node in selectedH)
+							{
+								node.X = 2 - node.X;
+							}
+
+						});
+						break;
+					case 12:
+						var selectedV = EditorWindow.Instance.SelectedNotes.ToList();
+						foreach (var node in selectedV)
+						{
+							node.Y = 2 - node.Y;
+						}
+
+						EditorWindow.Instance.UndoRedo.AddUndoRedo("VERTICAL FLIP", () =>
+						{
+							foreach (var node in selectedV)
+							{
+								node.Y = 2 - node.Y;
+							}
+
+						}, () =>
+						{
+							foreach (var node in selectedV)
+							{
+								node.Y = 2 - node.Y;
+							}
+
+						});
+						break;
+					case 13:
+						if (EditorWindow.Instance.SelectedNotes.Count > 1)
+							beziernodes = EditorWindow.Instance.SelectedNotes.ToList();
+						break;
+					case 14:
+						if (beziernodes != null)
+							beziernodes.Clear();
+						break;
+					case 15:
+						OptionsNavEnabled = !OptionsNavEnabled;
+						TimingNavEnabled = false;
+						PatternsNavEnabled = false;
+						ColorsNavEnabled = false;
+						HideShowElements();
+						break;
+					case 16:
+						OptionsNavEnabled = false;
+						TimingNavEnabled = !TimingNavEnabled;
+						PatternsNavEnabled = false;
+						ColorsNavEnabled = false;
+						HideShowElements();
+						break;
+					case 17:
+						OptionsNavEnabled = false;
+						TimingNavEnabled = false;
+						PatternsNavEnabled = !PatternsNavEnabled;
+						ColorsNavEnabled = false;
+						HideShowElements();
+						break;
+					case 18:
+						if (int.TryParse(ScaleBox.Text, out var scale))
+						{
+							var scalef = scale / 100f;
+							var selected = EditorWindow.Instance.SelectedNotes.ToList();
 							foreach (var note in selected)
 							{
 								note.X = (note.X - 1) * scalef + 1;
 								note.Y = (note.Y - 1) * scalef + 1;
 							}
 
-						});
-                    }
-					break;
-				case 19:
-					if (long.TryParse(MSBoundHigher.Text, out var mshigh) && long.TryParse(MSBoundLower.Text, out var mslow))
-                    {
-						var mstop = mshigh;
-						var msbot = mslow;
+							EditorWindow.Instance.UndoRedo.AddUndoRedo($"SCALE {scale}%", () =>
+							{
+								foreach (var note in selected)
+								{
+									note.X = (note.X - 1) / scalef + 1;
+									note.Y = (note.Y - 1) / scalef + 1;
+								}
 
-						EditorWindow.Instance.SelectedNotes.Clear();
+							}, () =>
+							{
+								foreach (var note in selected)
+								{
+									note.X = (note.X - 1) * scalef + 1;
+									note.Y = (note.Y - 1) * scalef + 1;
+								}
 
-						foreach (var note in EditorWindow.Instance.Notes.ToList())
-                        {
-							if ((note.Ms > msbot && note.Ms < mstop) || (note.Ms < msbot && note.Ms > mstop))
-                            {
-								EditorWindow.Instance.SelectedNotes.Add(note);
-                            }
-                        }
-
-						EditorWindow.Instance._draggedNotes = EditorWindow.Instance.SelectedNotes;
-                    }
-					break;
-				case 22:
-					OptionsNavEnabled = false;
-					TimingNavEnabled = false;
-					PatternsNavEnabled = false;
-					ColorsNavEnabled = !ColorsNavEnabled;
-					HideShowElements();
-					break;
-				case 23:
-					if (EditorWindow.Instance.PromptColorsetSave())
-					{
-						EditorWindow.Instance.Notes.SetNotesWhite();
-					}
-					break;
-				case 24:
-					using (var dialog = new OpenFileDialog
-					{
-						Title = "Select Colorset File",
-						Filter = "Text Documents (*.colorset)|*.colorset"
-					})
-					{
-						if (dialog.ShowDialog() == DialogResult.OK)
-						{
-							Colorset.LoadColorset(dialog.FileName);
+							});
 						}
-					}
-					break;
-				case 25:
-					//EXPORT COLORSET
-					if(Colorset.hasColorset == true)
-                    {
-						using (var sfd = new SaveFileDialog
+						break;
+					case 19:
+						if (long.TryParse(MSBoundHigher.Text, out var mshigh) && long.TryParse(MSBoundLower.Text, out var mslow))
 						{
-							Title = "Save Colorset",
-							Filter = "Text Documents (*.txt)|*.txt"
+							var mstop = mshigh;
+							var msbot = mslow;
+
+							EditorWindow.Instance.SelectedNotes.Clear();
+
+							foreach (var note in EditorWindow.Instance.Notes.ToList())
+							{
+								if ((note.Ms > msbot && note.Ms < mstop) || (note.Ms < msbot && note.Ms > mstop))
+								{
+									EditorWindow.Instance.SelectedNotes.Add(note);
+								}
+							}
+
+							EditorWindow.Instance._draggedNotes = EditorWindow.Instance.SelectedNotes;
+						}
+						break;
+					case 22:
+						OptionsNavEnabled = false;
+						TimingNavEnabled = false;
+						PatternsNavEnabled = false;
+						ColorsNavEnabled = !ColorsNavEnabled;
+						HideShowElements();
+						break;
+					case 23:
+						if (EditorWindow.Instance.PromptColorsetSave())
+						{
+							EditorWindow.Instance.Notes.SetNotesWhite();
+						}
+						break;
+					case 24:
+						using (var dialog = new OpenFileDialog
+						{
+							Title = "Select Colorset File",
+							Filter = "Text Documents (*.colorset)|*.colorset"
 						})
 						{
-							var wasFullscreen = EditorWindow.Instance.IsFullscreen;
-
-							if (EditorWindow.Instance.IsFullscreen)
+							if (dialog.ShowDialog() == DialogResult.OK)
 							{
-								EditorWindow.Instance.ToggleFullscreen();
-							}
-
-							var result = sfd.ShowDialog();
-
-							if (wasFullscreen)
-							{
-								EditorWindow.Instance.ToggleFullscreen();
-							}
-
-							if (result == DialogResult.OK)
-							{
-
-								EditorWindow.Instance.ExportColorsetFile(sfd.FileName);
+								Colorset.LoadColorset(dialog.FileName);
 							}
 						}
-					}
-					break;
-				case 26:
-					//VISUALIZE COLORS
-					if (Colorset.hasColorset == true)
-					{
-						if (ColorsDisplayEnabled == true) { ColorsDisplayEnabled = false; }
-						else if (ColorsDisplayEnabled == false) { ColorsDisplayEnabled = true; };
-					}
-					break;
-				case 27:
-					//MANAGE LAYERS
-					if (Colorset.hasColorset == true)
-					{
-						if (LayerViewer.inst != null)
-							LayerViewer.inst.Close();
-						LayerViewer.inst = new LayerViewer();
-						LayerViewer.inst.Show();
-					}
+						break;
+					case 25:
+						//EXPORT COLORSET
+						if (Colorset.hasColorset == true)
+						{
+							using (var sfd = new SaveFileDialog
+							{
+								Title = "Save Colorset",
+								Filter = "Text Documents (*.txt)|*.txt"
+							})
+							{
+								var wasFullscreen = EditorWindow.Instance.IsFullscreen;
 
-					break;
-				case 28:
-					//ADD ALTERNATE
-					if (Colorset.hasColorset == true)
-					{
-						Colorset.AddAlternate(ad1, ad2);
-						Colorset.DefaultColors();
-						Colorset.SetupColorset();
-					}
-					break;
-				case 29:
-					//ADD COLOR
-					if (Colorset.hasColorset == true)
-					{
-						Colorset.AddColor(ad1, ad2, ad3, Colorset.currentColor);
-						Colorset.DefaultColors();
-						Colorset.SetupColorset();
-					}
-					break;
-				case 30:
-					//CHANGE COLOR
-					if (Colorset.hasColorset == true)
-					{
-						Colorset.ChangeColor(ad1, ad2, ad3);
-						Colorset.SetupColorset();
-					}
-					break;
-				case 31:
-					//DELETE COLOR
-					delete = 1;
-					break;
-				case 32:
-					//DELETE ALTERNATE
-					delete = 2;
-                    break;
-                case 33:
-					if (Colorset.hasColorset == true)
-					{
-						if (delete == 1)
+								if (EditorWindow.Instance.IsFullscreen)
+								{
+									EditorWindow.Instance.ToggleFullscreen();
+								}
+
+								var result = sfd.ShowDialog();
+
+								if (wasFullscreen)
+								{
+									EditorWindow.Instance.ToggleFullscreen();
+								}
+
+								if (result == DialogResult.OK)
+								{
+
+									EditorWindow.Instance.ExportColorsetFile(sfd.FileName);
+								}
+							}
+						}
+						break;
+					case 26:
+						//VISUALIZE COLORS
+						if (Colorset.hasColorset == true)
+						{
+							if (ColorsDisplayEnabled == true) { ColorsDisplayEnabled = false; }
+							else if (ColorsDisplayEnabled == false) { ColorsDisplayEnabled = true; };
+						}
+						break;
+					case 27:
+						//MANAGE LAYERS
+						if (Colorset.hasColorset == true)
+						{
+							if (LayerViewer.inst != null)
+								LayerViewer.inst.Close();
+							LayerViewer.inst = new LayerViewer();
+							LayerViewer.inst.Show();
+						}
+
+						break;
+					case 29:
+						//ADD COLOR
+						Console.WriteLine("TestADD!");
+						if (Colorset.hasColorset == true)
+						{
+							Console.WriteLine(Colorset.layers.Count);
+							Console.WriteLine(ad1 + 1);
+                            if(Colorset.layers.Count < ad1 + 1)
+                            {
+								Colorset.AddLayer(ad1);
+								Console.WriteLine("Creating Layer!?");
+                            }
+                            else if (Colorset.layers[ad1].Alternates.Count < ad2)
+                            {
+								Colorset.AddAlternate(ad1, ad2);
+								Console.WriteLine("Creating Alternate!?");
+								Colorset.AddColor(ad1, ad2, ad3, Colorset.currentColor);
+								Colorset.DefaultColors();
+							}
+                            else
+                            {
+								Colorset.AddColor(ad1, ad2, ad3, Colorset.currentColor);
+								Colorset.DefaultColors();
+							}
+							Colorset.SetupColorset();
+						}
+						break;
+					case 30:
+						//CHANGE COLOR
+						if (Colorset.hasColorset == true)
+						{
+							Colorset.ChangeColor(ad1, ad2, ad3);
+							Colorset.SetupColorset();
+						}
+						break;
+					case 31:
+						if (Colorset.hasColorset == true)
 						{
 							Colorset.DeleteColor(ad1, ad2, ad3);
-							delete = 0;
 						}
-						if (delete == 2)
+							Colorset.SetupColorset();
+						break;
+					case 34:
+						//SET NOTES
+						if (Colorset.hasColorset == true)
 						{
-							Colorset.DeleteAlternate(ad1, ad2);
-							delete = 0;
+							Console.WriteLine("Set Notes");
+							var selectedNotes = EditorWindow.Instance.SelectedNotes.ToList();
+							Colorset.AssignNotes(selectedNotes, Int32.Parse(LayerPicker.Text), Int32.Parse(ShiftLevel.Text));
 						}
-						Colorset.DefaultColors();
-						Colorset.SetupColorset();
-					}
-					break;
-				case 34:
-					//SET NOTES
-					if (Colorset.hasColorset == true)
-					{
-						Console.WriteLine("Set Notes");
-						var selectedNotes = EditorWindow.Instance.SelectedNotes.ToList();
-						Colorset.AssignNotes(selectedNotes, Int32.Parse(LayerPicker.Text), Int32.Parse(ShiftLevel.Text));
-					}
-					break;
-				case 35:
-					//SET COMPARISON
-					Colorset.previousColor = new OpenTK.Graphics.Color4((float)Int32.Parse(ColorR.Text) / 255, (float)Int32.Parse(ColorG.Text) / 255, (float)Int32.Parse(ColorB.Text) / 255, 255);
-					break;
-				case 36:
-					//REVERSE SELECTION (FOR RGB) (UNMARKED BUTTON)
-					//I CHANGED MY FUCKING MIND
-					//THIS BUTTON MAKES THE HEX CODE TURN TO SLIDER
-					OpenTK.Graphics.Color4 obama = HexColor.HextoColor4(ColorHex.Text);
-					ColorRSlider.Value = (int)(obama.R * 255);
-					ColorGSlider.Value = (int)(obama.G * 255);
-					ColorBSlider.Value = (int)(obama.B * 255);
-					ColorR.Text = (obama.R * 255).ToString();
-					ColorG.Text = (obama.G * 255).ToString();
-					ColorB.Text = (obama.B * 255).ToString();
-					break;
-				case 37:
-					//SET COLOR 
-					Colorset.currentColor = new OpenTK.Graphics.Color4((float)Int32.Parse(ColorR.Text) / 255, (float)Int32.Parse(ColorG.Text) / 255, (float)Int32.Parse(ColorB.Text) / 255, 255);
-					break;
-				case 38:
-					//SHIFT DEFAULT
-					if (Colorset.hasColorset == true)
-					{
-						var selectedNotes = EditorWindow.Instance.SelectedNotes.ToList();
-						bool firstnote = true;
-						foreach (Note note in selectedNotes)
+						break;
+					case 35:
+						
+						break;
+					case 36:
+						//REVERSE SELECTION (FOR RGB) (UNMARKED BUTTON)
+						//I CHANGED MY FUCKING MIND
+						//THIS BUTTON MAKES THE HEX CODE TURN TO SLIDER
+						OpenTK.Graphics.Color4 obama = HexColor.HextoColor4(ColorHex.Text);
+						ColorRSlider.Value = (int)(obama.R * 255);
+						ColorGSlider.Value = (int)(obama.G * 255);
+						ColorBSlider.Value = (int)(obama.B * 255);
+						ColorR.Text = (obama.R * 255).ToString();
+						ColorG.Text = (obama.G * 255).ToString();
+						ColorB.Text = (obama.B * 255).ToString();
+						break;
+					case 37:
+						//SET COLOR 
+						Colorset.currentColor = new OpenTK.Graphics.Color4((float)Int32.Parse(ColorR.Text) / 255, (float)Int32.Parse(ColorG.Text) / 255, (float)Int32.Parse(ColorB.Text) / 255, 255);
+						break;
+					case 38:
+						//SHIFT DEFAULT
+						if (Colorset.hasColorset == true)
 						{
-							if (firstnote == true)
+							var selectedNotes = EditorWindow.Instance.SelectedNotes.ToList();
+							bool firstnote = true;
+							foreach (Note note in selectedNotes)
 							{
-								note.shift = -999999;
-								firstnote = false;
+								if (firstnote == true)
+								{
+									note.shift = -999999;
+									firstnote = false;
+								}
+								else
+								{
+									note.shift = 0;
+								}
+								Console.WriteLine(note.shift);
 							}
-							else
-							{
-								note.shift = 0;
-							}
-							Console.WriteLine(note.shift);
+							Colorset.VerifyNotes();
 						}
-						Colorset.VerifyNotes();
-					}
-					break;
-				case 39:
-					//APPLY SHIFT
-					if (Colorset.hasColorset == true)
-					{
-						var selectedNotes = EditorWindow.Instance.SelectedNotes.ToList();
-						foreach (Note note in selectedNotes)
+						break;
+					case 39:
+						//APPLY SHIFT
+						if (Colorset.hasColorset == true)
 						{
-							note.shift += Int32.Parse(ShiftLevel.Text);
-							Console.WriteLine(note.shift);
+							var selectedNotes = EditorWindow.Instance.SelectedNotes.ToList();
+							foreach (Note note in selectedNotes)
+							{
+								note.shift += Int32.Parse(ShiftLevel.Text);
+								Console.WriteLine(note.shift);
+							}
+							Colorset.VerifyNotes();
 						}
-						Colorset.VerifyNotes();
-					}
-					break;
+						break;
+				}
 			}
+            catch { }
 		}
 
 		public override void OnResize(Size size)
@@ -1795,6 +1776,7 @@ namespace Sound_Space_Editor.Gui
 			UseCurrentMs.ClientRectangle.Size = new SizeF(Offset.ClientRectangle.Width * 2f + 5 * widthdiff, Offset.ClientRectangle.Height);
 			OpenTimings.ClientRectangle.Size = UseCurrentMs.ClientRectangle.Size;
 			OpenBookmarks.ClientRectangle.Size = UseCurrentMs.ClientRectangle.Size;
+			SfxOffset.ClientRectangle.Size = Offset.ClientRectangle.Size;
 
 			//options
 			Autoplay.ClientRectangle.Size = new SizeF(40 * widthdiff, 40 * heightdiff);
@@ -1808,6 +1790,7 @@ namespace Sound_Space_Editor.Gui
 			Metronome.ClientRectangle.Size = Autoplay.ClientRectangle.Size;
 			//ClickToPlace.ClientRectangle.Size = Autoplay.ClientRectangle.Size;
 			SeparateClickTools.ClientRectangle.Size = Autoplay.ClientRectangle.Size;
+			inconspicuousCheckBox.ClientRectangle.Size = Autoplay.ClientRectangle.Size;
 			TrackHeight.ClientRectangle.Size = new SizeF(32 * widthdiff, 256 * heightdiff);
 			TrackCursorPos.ClientRectangle.Size = new SizeF(OptionsNav.ClientRectangle.Width, 32 * heightdiff);
 			ApproachRate.ClientRectangle.Size = TrackHeight.ClientRectangle.Size;
@@ -1842,30 +1825,23 @@ namespace Sound_Space_Editor.Gui
 			ColorRSlider.ClientRectangle.Size = new SizeF(Offset.ClientRectangle.Width * 2f * widthdiff, Offset.ClientRectangle.Height * 1.2f);
 			ColorGSlider.ClientRectangle.Size = ColorRSlider.ClientRectangle.Size;
 			ColorBSlider.ClientRectangle.Size = ColorRSlider.ClientRectangle.Size;
-			AddAlternate.ClientRectangle.Size = CreateColorset.ClientRectangle.Size;
 			AddColor.ClientRectangle.Size = CreateColorset.ClientRectangle.Size;
 			ChangeColor.ClientRectangle.Size = CreateColorset.ClientRectangle.Size;
 			DeleteColor.ClientRectangle.Size = CreateColorset.ClientRectangle.Size;
-			DeleteAlternate.ClientRectangle.Size = CreateColorset.ClientRectangle.Size;
-			ConfirmDelete.ClientRectangle.Size = CreateColorset.ClientRectangle.Size;
 			ColorHex.ClientRectangle.Size = new SizeF(Offset.ClientRectangle.Width * 1.2f * widthdiff, Offset.ClientRectangle.Height * 0.8f);
-			SetNotes.ClientRectangle.Size = ConfirmDelete.ClientRectangle.Size;
-			SetColor.ClientRectangle.Size = ConfirmDelete.ClientRectangle.Size;
-			SetComparison.ClientRectangle.Size = ConfirmDelete.ClientRectangle.Size;
+			SetNotes.ClientRectangle.Size = CreateColorset.ClientRectangle.Size;
+			SetColor.ClientRectangle.Size = CreateColorset.ClientRectangle.Size;
 			ReverseSelection.ClientRectangle.Size = new SizeF(Offset.ClientRectangle.Height * 0.8f * widthdiff, Offset.ClientRectangle.Height * 0.8f);
 			ShiftLevel.ClientRectangle.Size = LayerPicker.ClientRectangle.Size;
 			ShiftDefault.ClientRectangle.Size = LayerPicker.ClientRectangle.Size;
 			ApplyShift.ClientRectangle.Size = LayerPicker.ClientRectangle.Size;
 
 			//etc
-			JumpMSButton.ClientRectangle.Size = new SizeF(192 * widthdiff, 40 * heightdiff);
-			SfxOffset.ClientRectangle.Size = JumpMSButton.ClientRectangle.Size;
-			JumpMSBox.ClientRectangle.Size = JumpMSButton.ClientRectangle.Size;
 			AutoAdvance.ClientRectangle.Size = Autoplay.ClientRectangle.Size;
 
-			MSBoundLower.ClientRectangle.Size = JumpMSButton.ClientRectangle.Size;
-			MSBoundHigher.ClientRectangle.Size = JumpMSButton.ClientRectangle.Size;
-			SelectBound.ClientRectangle.Size = JumpMSButton.ClientRectangle.Size;
+			MSBoundLower.ClientRectangle.Size = new SizeF(192 * widthdiff, 40 * heightdiff);
+			MSBoundHigher.ClientRectangle.Size = MSBoundLower.ClientRectangle.Size;
+			SelectBound.ClientRectangle.Size = MSBoundLower.ClientRectangle.Size;
 			
 
 			OptionsNav.ClientRectangle.Location = new PointF(10 * widthdiff, Track.ClientRectangle.Bottom + 60);
@@ -1875,9 +1851,11 @@ namespace Sound_Space_Editor.Gui
 
 			//timing
 			Offset.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, TimingNav.ClientRectangle.Bottom + 40 * heightdiff);
-			UseCurrentMs.ClientRectangle.Location = new PointF(Offset.ClientRectangle.X, Offset.ClientRectangle.Bottom + 10 * heightdiff);
-			OpenTimings.ClientRectangle.Location = new PointF(Offset.ClientRectangle.X, UseCurrentMs.ClientRectangle.Bottom + 10 * heightdiff);
+			SfxOffset.ClientRectangle.Location = new PointF(Offset.ClientRectangle.X, Offset.ClientRectangle.Bottom + 36 * heightdiff);
+			UseCurrentMs.ClientRectangle.Location = new PointF(Offset.ClientRectangle.Right + 5 + widthdiff, Offset.ClientRectangle.Top);
+			OpenTimings.ClientRectangle.Location = new PointF(Offset.ClientRectangle.X, SfxOffset.ClientRectangle.Bottom + 10 * heightdiff);
 			OpenBookmarks.ClientRectangle.Location = new PointF(Offset.ClientRectangle.X, OpenTimings.ClientRectangle.Bottom + 10 * heightdiff);
+			
 
 			//options
 			Autoplay.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, OptionsNav.ClientRectangle.Bottom + 20 * heightdiff);
@@ -1891,8 +1869,9 @@ namespace Sound_Space_Editor.Gui
 			Metronome.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, QuantumGridSnap.ClientRectangle.Bottom + 10 * heightdiff);
 			//ClickToPlace.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, Metronome.ClientRectangle.Bottom + 10 * heightdiff);
 			SeparateClickTools.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, Metronome.ClientRectangle.Bottom + 10 * heightdiff);
-			TrackHeight.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.Right - TrackHeight.ClientRectangle.Width, SeparateClickTools.ClientRectangle.Bottom + 50 * heightdiff - TrackHeight.ClientRectangle.Height);
-			TrackCursorPos.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, SeparateClickTools.ClientRectangle.Bottom + 36 * heightdiff);
+			inconspicuousCheckBox.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, SeparateClickTools.ClientRectangle.Bottom + 10 * heightdiff);
+			TrackHeight.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.Right - TrackHeight.ClientRectangle.Width, inconspicuousCheckBox.ClientRectangle.Bottom + 50 * heightdiff - TrackHeight.ClientRectangle.Height);
+			TrackCursorPos.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, inconspicuousCheckBox.ClientRectangle.Bottom + 36 * heightdiff);
 			ApproachRate.ClientRectangle.Location = new PointF(TrackHeight.ClientRectangle.X, Quantum.ClientRectangle.Bottom + 10 * heightdiff - TrackHeight.ClientRectangle.Height);
 
 			//patterns
@@ -1910,32 +1889,28 @@ namespace Sound_Space_Editor.Gui
 			ScaleButton.ClientRectangle.Location = new PointF(RotateBox.ClientRectangle.Right + 5 * widthdiff, ScaleBox.ClientRectangle.Y);
 
 			//colors
-			CreateColorset.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, ColorsNav.ClientRectangle.Bottom + 40 * heightdiff);
-			OpenColorset.ClientRectangle.Location = new PointF(CreateColorset.ClientRectangle.X + CreateColorset.ClientRectangle.Size.Width + 10, ColorsNav.ClientRectangle.Bottom + 40 * heightdiff);
+			CreateColorset.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, ColorsNav.ClientRectangle.Bottom + 20 * heightdiff);
+			OpenColorset.ClientRectangle.Location = new PointF(CreateColorset.ClientRectangle.X + CreateColorset.ClientRectangle.Size.Width + 10 * widthdiff, ColorsNav.ClientRectangle.Bottom + 20 * heightdiff);
 			ExportColorset.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, CreateColorset.ClientRectangle.Bottom + 8 * heightdiff);
 			VisualizeColors.ClientRectangle.Location = new PointF(OpenColorset.ClientRectangle.X, CreateColorset.ClientRectangle.Bottom + 8 * heightdiff);
 			ManageLayers.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, ExportColorset.ClientRectangle.Bottom + 8 * heightdiff);
 			LayerPicker.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, ManageLayers.ClientRectangle.Bottom + 38 * heightdiff);
 			LayerWarning.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, CreateColorset.ClientRectangle.Bottom + 8 * heightdiff);
-			AlternatePicker.ClientRectangle.Location = new PointF(LayerPicker.ClientRectangle.X + 133, ManageLayers.ClientRectangle.Bottom + 38 * heightdiff);
-			ColorPicker.ClientRectangle.Location = new PointF(AlternatePicker.ClientRectangle.X + 133, ManageLayers.ClientRectangle.Bottom + 38 * heightdiff);
-			ColorR.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X + 312, LayerPicker.ClientRectangle.Bottom + 8 * heightdiff);
+			AlternatePicker.ClientRectangle.Location = new PointF(LayerPicker.ClientRectangle.Right + 5 * widthdiff, ManageLayers.ClientRectangle.Bottom + 38 * heightdiff);
+			ColorPicker.ClientRectangle.Location = new PointF(AlternatePicker.ClientRectangle.Right + 5 * widthdiff, ManageLayers.ClientRectangle.Bottom + 38 * heightdiff);
+			ColorRSlider.ClientRectangle.Location = new PointF(LayerPicker.ClientRectangle.X + 60 * widthdiff, LayerPicker.ClientRectangle.Bottom + 5 * heightdiff);
+			ColorGSlider.ClientRectangle.Location = new PointF(ColorRSlider.ClientRectangle.X, ColorRSlider.ClientRectangle.Bottom + 1 * heightdiff);
+			ColorBSlider.ClientRectangle.Location = new PointF(ColorGSlider.ClientRectangle.X, ColorGSlider.ClientRectangle.Bottom + 1 * heightdiff);
+			ColorR.ClientRectangle.Location = new PointF(ColorRSlider.ClientRectangle.Right  - 5 * widthdiff, LayerPicker.ClientRectangle.Bottom + 8 * heightdiff);
 			ColorG.ClientRectangle.Location = new PointF(ColorR.ClientRectangle.X, ColorR.ClientRectangle.Bottom + 8 * heightdiff);
 			ColorB.ClientRectangle.Location = new PointF(ColorG.ClientRectangle.X, ColorG.ClientRectangle.Bottom + 8 * heightdiff);
-			ColorRSlider.ClientRectangle.Location = new PointF(ColorR.ClientRectangle.X - 250, LayerPicker.ClientRectangle.Bottom + 5 * heightdiff);
-			ColorGSlider.ClientRectangle.Location = new PointF(ColorG.ClientRectangle.X - 250, ColorRSlider.ClientRectangle.Bottom + 1 * heightdiff);
-			ColorBSlider.ClientRectangle.Location = new PointF(ColorB.ClientRectangle.X - 250, ColorGSlider.ClientRectangle.Bottom + 1 * heightdiff);
 			ChangeColor.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, ColorB.ClientRectangle.Bottom + 8 * heightdiff);
-			ColorHex.ClientRectangle.Location = new PointF(OpenColorset.ClientRectangle.X + 38, ColorB.ClientRectangle.Bottom + 8 * heightdiff);
-			AddAlternate.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, ChangeColor.ClientRectangle.Bottom + 8 * heightdiff);
-			AddColor.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, AddAlternate.ClientRectangle.Bottom + 8 * heightdiff);
-			DeleteColor.ClientRectangle.Location = new PointF(OpenColorset.ClientRectangle.X, AddAlternate.ClientRectangle.Bottom + 8 * heightdiff);
-			DeleteAlternate.ClientRectangle.Location = new PointF(OpenColorset.ClientRectangle.X, ChangeColor.ClientRectangle.Bottom + 8 * heightdiff);
-			SetNotes.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, DeleteColor.ClientRectangle.Bottom + 8 * heightdiff);
-			ConfirmDelete.ClientRectangle.Location = new PointF(OpenColorset.ClientRectangle.X, DeleteColor.ClientRectangle.Bottom + 8 * heightdiff);
-			SetColor.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, SetNotes.ClientRectangle.Bottom + 8 * heightdiff);
-			SetComparison.ClientRectangle.Location = new PointF(OpenColorset.ClientRectangle.X, SetNotes.ClientRectangle.Bottom + 8 * heightdiff);
+			AddColor.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, ChangeColor.ClientRectangle.Bottom + 8 * heightdiff);
+			DeleteColor.ClientRectangle.Location = new PointF(OpenColorset.ClientRectangle.X, ChangeColor.ClientRectangle.Bottom + 8 * heightdiff);
+			SetNotes.ClientRectangle.Location = new PointF(OpenColorset.ClientRectangle.X, DeleteColor.ClientRectangle.Bottom + 8 * heightdiff);
+			SetColor.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, DeleteColor.ClientRectangle.Bottom + 8 * heightdiff);
 			ReverseSelection.ClientRectangle.Location = new PointF(OpenColorset.ClientRectangle.X, ColorB.ClientRectangle.Bottom + 8 * heightdiff);
+			ColorHex.ClientRectangle.Location = new PointF(ReverseSelection.ClientRectangle.Right + 5 * widthdiff, ColorB.ClientRectangle.Bottom + 8 * heightdiff);
 			ShiftLevel.ClientRectangle.Location = new PointF(LayerPicker.ClientRectangle.X, SetColor.ClientRectangle.Bottom + 8 * heightdiff);
 			ShiftDefault.ClientRectangle.Location = new PointF(AlternatePicker.ClientRectangle.X, SetColor.ClientRectangle.Bottom + 8 * heightdiff);
 			ApplyShift.ClientRectangle.Location = new PointF(ColorPicker.ClientRectangle.X, SetColor.ClientRectangle.Bottom + 8 * heightdiff);
@@ -1943,17 +1918,13 @@ namespace Sound_Space_Editor.Gui
 			//etc
 			BackButton.ClientRectangle.Location = new PointF(Grid.ClientRectangle.X, Grid.ClientRectangle.Bottom + 84 * heightdiff);
 			CopyButton.ClientRectangle.Location = new PointF(Grid.ClientRectangle.X, Grid.ClientRectangle.Y - CopyButton.ClientRectangle.Height - 75 * heightdiff);
-            PlayButton.ClientRectangle.Location = new PointF(Grid.ClientRectangle.X, Grid.ClientRectangle.Y - CopyButton.ClientRectangle.Height - 25 * heightdiff);
             playLabel.ClientRectangle.Location = new PointF(Grid.ClientRectangle.X + 315 * widthdiff, Grid.ClientRectangle.Y - CopyButton.ClientRectangle.Height - 10 * heightdiff);
             noplayLabel.ClientRectangle.Location = new PointF(Grid.ClientRectangle.X + 315 * widthdiff, Grid.ClientRectangle.Y - CopyButton.ClientRectangle.Height - 10 * heightdiff);
 
-            SfxOffset.ClientRectangle.Location = new PointF(SfxVolume.ClientRectangle.Left - SfxOffset.ClientRectangle.Width - 10 * widthdiff, Tempo.ClientRectangle.Top - SfxOffset.ClientRectangle.Height - 15 * heightdiff);
-			JumpMSButton.ClientRectangle.Location = new PointF(SfxOffset.ClientRectangle.X, SfxOffset.ClientRectangle.Top - JumpMSButton.ClientRectangle.Height - 30);
-			JumpMSBox.ClientRectangle.Location = new PointF(SfxOffset.ClientRectangle.X, JumpMSButton.ClientRectangle.Top - JumpMSBox.ClientRectangle.Height - 10 * heightdiff);
 			AutoAdvance.ClientRectangle.Location = new PointF(BeatSnapDivisor.ClientRectangle.X + 20 * widthdiff, CopyButton.ClientRectangle.Y + 35 * heightdiff);
-			SelectBound.ClientRectangle.Location = new PointF(SfxOffset.ClientRectangle.X, JumpMSBox.ClientRectangle.Top - SelectBound.ClientRectangle.Height - 30);
-			MSBoundHigher.ClientRectangle.Location = new PointF(SfxOffset.ClientRectangle.X, SelectBound.ClientRectangle.Top - MSBoundHigher.ClientRectangle.Height - 10 * heightdiff);
-			MSBoundLower.ClientRectangle.Location = new PointF(SfxOffset.ClientRectangle.X, MSBoundHigher.ClientRectangle.Top - MSBoundLower.ClientRectangle.Height - 10 * heightdiff);
+			SelectBound.ClientRectangle.Location = new PointF(SfxVolume.ClientRectangle.Left - MSBoundLower.ClientRectangle.Width - 10 * widthdiff, Tempo.ClientRectangle.Top - SfxOffset.ClientRectangle.Height - 15 * heightdiff);
+			MSBoundHigher.ClientRectangle.Location = new PointF(SelectBound.ClientRectangle.X, SelectBound.ClientRectangle.Top - MSBoundHigher.ClientRectangle.Height - 10 * heightdiff);
+			MSBoundLower.ClientRectangle.Location = new PointF(SelectBound.ClientRectangle.X, MSBoundHigher.ClientRectangle.Top - MSBoundLower.ClientRectangle.Height - 10 * heightdiff);
 
 
 			HideShowElements();
@@ -1977,67 +1948,6 @@ namespace Sound_Space_Editor.Gui
 
 		private void UpdateTrack()
 		{
-			/*
-			if (Bpm.Focused)
-			{
-				var text = Bpm.Text;
-				var decimalPont = false;
-
-				if (text.Length > 0 && text[text.Length - 1].ToString() ==
-				    CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)
-				{
-					text = text + 0;
-
-					decimalPont = true;
-				}
-
-				if (text.Contains(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator))
-                {
-					decimalPont = true;
-                }
-
-				decimal.TryParse(text, out var bpm);
-
-				if (bpm < 0)
-					bpm = 0;
-				else if (bpm > 5000)
-					bpm = 5000;
-				if (!decimalPont && bpm > 0)
-					Bpm.Text = bpm.ToString();
-			}
-			if (Offset.Focused)
-			{
-				long.TryParse(Offset.Text, out var offset);
-
-				offset = Math.Max(0, offset);
-
-				if (offset > 0)
-					Offset.Text = offset.ToString();
-			}
-			if (SfxOffset.Focused)
-			{
-				if (long.TryParse(SfxOffset.Text, out var sfxOffset))
-					SfxOffset.Text = sfxOffset.ToString();
-			}
-			if (JumpMSBox.Focused)
-            {
-				if (long.TryParse(JumpMSBox.Text, out var jumpMS))
-					if (jumpMS > EditorWindow.Instance.totalTime.TotalMilliseconds)
-						jumpMS = (long)EditorWindow.Instance.totalTime.TotalMilliseconds;
-				if (jumpMS.ToString() != "0")
-					JumpMSBox.Text = jumpMS.ToString();
-			}
-			if (RotateBox.Focused)
-            {
-				if (float.TryParse(RotateBox.Text, out var degrees))
-					RotateBox.Text = degrees.ToString();
-            }
-			if (BezierBox.Focused)
-            {
-				if (long.TryParse(BezierBox.Text, out var ints))
-					BezierBox.Text = ints.ToString();
-            }
-			*/
 			foreach (var box in Boxes)
 				box.Text = box.Text;
 		}

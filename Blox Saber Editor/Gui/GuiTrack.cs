@@ -99,7 +99,7 @@ namespace Sound_Space_Editor.Gui
 				GL.Translate(waveX, rect.Height * 0.5, 0);
 				GL.Scale(scale / 100000.0, -rect.Height, 1);
 				GL.Translate(-50000, -0.5, 0);
-				GL.LineWidth(2);
+				GL.LineWidth(1.4f);
 				editor.MusicPlayer.WaveModel.Render(PrimitiveType.LineStrip);
 				GL.LineWidth(1);
 				GL.Translate(50000 * scale, 0.5, 0);
@@ -110,29 +110,6 @@ namespace Sound_Space_Editor.Gui
 				GL.BindVertexArray(0);
 				GL.PopMatrix();
 			}
-			/*
-			GL.Begin(PrimitiveType.LineStrip);
-
-			for (double x = 0; x < rect.Width + 4; x += 4)
-			{
-				var peak = editor.MusicPlayer.GetPeak(audioTime + (x - ScreenX) / cubeStep * 1000) * rect.Height;
-
-				GL.Vertex2(x + 0.5f, rect.Height - peak);
-			}
-			GL.End();*/
-
-			//render quarters of a second depending on zoom level
-			/*
-			while (lineSpace > 0 && lineX < rect.Width)
-			{
-				GL.Color3(0.85f, 0.85f, 0.85f);
-				GL.Begin(PrimitiveType.Lines);
-				GL.Vertex2((int)lineX + 0.5f, rect.Y);
-				GL.Vertex2((int)lineX + 0.5f, rect.Y + 5);
-				GL.End();
-
-				lineX += lineSpace;
-			}*/
 
 			var mouseOver = false;
 
@@ -163,7 +140,7 @@ namespace Sound_Space_Editor.Gui
 			_cs.Reset();
 
 			var rendered = new List<int>();
-
+			long previousMS = 0;
 			for (int i = 0; i < editor.Notes.Count; i++)
 			{
 				Note note = EditorWindow.Instance.Notes[i];
@@ -184,7 +161,15 @@ namespace Sound_Space_Editor.Gui
 				if (x > rect.Width)
 					break;
 
-				if (x < rect.X - noteSize || rendered.Contains((int)x) || rendered.Contains((int)x + 1) || rendered.Contains((int)x - 1))
+				long distanceFromLast = 0;
+				if (i > 0)
+				{
+					distanceFromLast = previousMS - note.Ms;
+				}
+				previousMS = note.Ms;
+
+				// Removed "rendered.Contains((int)x + 1)" because it was preventing meganotes from displaying.
+				if (x < rect.X - noteSize || rendered.Contains((int)x + 1) && distanceFromLast != 0 || rendered.Contains((int)x + 1) && distanceFromLast != 0 || rendered.Contains((int)x - 1) && distanceFromLast != 0)
 					continue;
 
 				rendered.Add((int)x);
@@ -253,6 +238,7 @@ namespace Sound_Space_Editor.Gui
 				var numText = $"{(i + 1):##,###}";
 
 				var msText = $"{note.Ms:##,###}";
+
 				if (msText == "")
 					msText = "0";
 

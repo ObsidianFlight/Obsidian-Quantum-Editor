@@ -20,7 +20,7 @@
      "correctOnCopy": true,
      "editorBGOpacity": 255,
      "enableAutosave": true,
-     "gridOpacity": 0,
+     "gridOpacity": 255,
      "keybinds": {
           "anchorNode": [
                "A",
@@ -120,6 +120,12 @@
           "selectAll": [
                "A",
                true,
+               false,
+               false
+          ],
+          "setNotesColor": [
+               "F",
+               false,
                false,
                false
           ],

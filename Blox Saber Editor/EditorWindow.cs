@@ -1299,6 +1299,8 @@ namespace Sound_Space_Editor
 				return "DrawBezier";
 			if (CompareKeybind(key, EditorSettings.AnchorNode))
 				return "AnchorNode";
+			if (CompareKeybind(key, EditorSettings.SetNotesColor))
+				return "SetNotes";
 
 			if (key == Key.Number0)
 				return "Pattern0";
@@ -1837,6 +1839,13 @@ namespace Sound_Space_Editor
 					case "AnchorNode":
 						foreach (var note in SelectedNotes)
 							note.Anchored = !note.Anchored;
+						return;
+					case "SetNotes":
+						if (Colorset.hasColorset == true)
+						{
+							Console.WriteLine("Set Notes");
+							Colorset.AssignNotes(SelectedNotes, Int32.Parse(GuiScreenEditor.Instance.LayerPicker.Text), Int32.Parse(GuiScreenEditor.Instance.ShiftLevel.Text));
+						}
 						return;
 					case "Pattern0":
 						if (_shiftDown && SelectedNotes.Count > 0)
@@ -2393,48 +2402,36 @@ namespace Sound_Space_Editor
 					{
 						var increment = (float)(gse.NoteAlign.Value + 1f) / 3f;
 
-						var newX = (float)((pos.X - (rect.X + (rect.Width / 2))) / rect.Width * 3) + 1;
-						var newY = (float)((pos.Y - (rect.Y + (rect.Height / 2))) / rect.Height * 3) + 1;
+						var newX = (pos.X - rect.X - rect.Width / 2f) / rect.Width * 3f + 1 / increment;
+						var newY = (pos.Y - rect.Y - rect.Width / 2f) / rect.Height * 3f + 1 / increment;
 
 						if (editor.QuantumGridSnap.Toggle)
                         {
-							newX = (float)(Math.Floor((newX + 1 / increment / 2) * increment) / increment);
-							newY = (float)(Math.Floor((newY + 1 / increment / 2) * increment) / increment);
+							newX = (float)Math.Floor((newX + 1 / increment / 2) * increment) / increment;
+							newY = (float)Math.Floor((newY + 1 / increment / 2) * increment) / increment;
 						}
+
+						newX = newX - 1 / increment + 1;
+						newY = newY - 1 / increment + 1;
 
 						var xdiff = newX - note.X;
 						var ydiff = newY - note.Y;
 
-						var maxX = note.X;
-						var minX = note.X;
-						var maxY = note.Y;
-						var minY = note.Y;
-
 						foreach (var selectednote in SelectedNotes)
 						{
-							if (selectednote != note)
-							{
-								maxX = (float)Math.Max(selectednote.X, maxX);
-								minX = (float)Math.Min(selectednote.X, minX);
-								maxY = (float)Math.Max(selectednote.Y, maxY);
-								minY = (float)Math.Min(selectednote.Y, minY);
-							}
+							xdiff += ClampDifference(xdiff + selectednote.X, -0.85f, 2.85f);
+							ydiff += ClampDifference(ydiff + selectednote.Y, -0.85f, 2.85f);
 						}
+
+						note.X = Clamp(note.X + xdiff, -0.85f, 2.85f);
+						note.Y = Clamp(note.Y + ydiff, -0.85f, 2.85f);
 						
-						xdiff = (float)Math.Max(-0.850d, minX + xdiff) - minX;
-						xdiff = (float)Math.Min(2.850d, maxX + xdiff) - maxX;
-						ydiff = (float)Math.Max(-0.850d, minY + ydiff) - minY;
-						ydiff = (float)Math.Min(2.850d, maxY + ydiff) - maxY;
-
-						note.X += xdiff;
-						note.Y += ydiff;
-
 						foreach (var selectednote in SelectedNotes)
 						{
 							if (selectednote != note)
 							{
-								selectednote.X += xdiff;
-								selectednote.Y += ydiff;
+								selectednote.X = Clamp(selectednote.X + xdiff, -0.85f, 2.85f);
+								selectednote.Y = Clamp(selectednote.Y + ydiff, -0.85f, 2.85f);
 							}
 						}
 					}
@@ -2486,6 +2483,32 @@ namespace Sound_Space_Editor
 					}
 				}
 			}
+		}
+		public static float Clamp(float value, float min, float max)
+		{
+			if (value < min)
+			{
+				return min;
+			}
+			else if (value > max)
+			{
+				return max;
+			}
+
+			return value;
+		}
+		public static float ClampDifference(float value, float min, float max)
+		{
+			if (value < min)
+			{
+				return min - value;
+			}
+			else if (value > max)
+			{
+				return max - value;
+			}
+
+			return 0;
 		}
 
 		private void OnDraggingTimeline(int mouseX)

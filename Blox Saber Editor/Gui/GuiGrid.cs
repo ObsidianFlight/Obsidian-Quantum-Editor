@@ -52,7 +52,7 @@ namespace Sound_Space_Editor.Gui
                 var mouseOver = false;
                 int griddim = EditorSettings.GridOpacity;
 
-                GL.Color4(Color.FromArgb(griddim, 36, 35, 33));
+                GL.Color4(Color.FromArgb(griddim, 40, 40, 40));
                 Glu.RenderQuad(rect.X, rect.Y, rect.Width, rect.Height);
 
                 //var cellSize = rect.Width / 1.5f;
@@ -63,40 +63,58 @@ namespace Sound_Space_Editor.Gui
                 var gap = cellSize - noteSize;
                 var audioTime = EditorWindow.Instance.currentTime.TotalMilliseconds;
 
-                GL.Color3(0.2, 0.2, 0.2f);
+                GL.Color3(0.11f, 0.11f, 0.11f);
 
                 for (float y = 0; y <= 3; y++)
                 {
                     var ly = y * cellSize;
 
-                    Glu.RenderQuad((int)(rect.X), (int)(rect.Y + ly), rect.Width + 1, 1);
+                    Glu.RenderQuad((int)(rect.X), (int)(rect.Y + ly), rect.Width + 1, 2);
                 }
 
                 for (float x = 0; x <= 3; x++)
                 {
                     var lx = x * cellSize;
 
-                    Glu.RenderQuad((int)(rect.X + lx), (int)(rect.Y), 1, rect.Height + 1);
+                    Glu.RenderQuad((int)(rect.X + lx), (int)(rect.Y), 2, rect.Height + 1);
                 }
 
-                if (editor.NoteAlign.Value != 1 && Settings.Default.QuantumGridLines)
+                GL.Color3(0.20f, 0.20f, 0.20f);
+
+                if (editor.NoteAlign.Value > 1 && Settings.Default.QuantumGridLines)
                 {
                     GL.Begin(PrimitiveType.Lines);
 
-                    var div = editor.NoteAlign.Value + 1;
+                    double div = editor.NoteAlign.Value + 1;
+                    var offset = Math.Round(div) % 2 == 0 ? 0.5f : 1f;
 
-                    for (int i = 1; i < div; i++)
+                    for (int i = 1; i < div + 1; i++)
                     {
                         //GL.Vertex2(rect.X + rect.Width / div * i, rect.Y);
                         //GL.Vertex2(rect.X + rect.Width / div * i, rect.Y + rect.Height / div * i);
+                        if(div%2 == 1 && i == 1)
+                        {
+                            i++;
+                        }
+                        GL.Vertex2(rect.X + 1 + rect.Width / div * (i - offset), rect.Y);
+                        GL.Vertex2(rect.X + 1 + rect.Width / div * (i - offset), rect.Y + rect.Height);
 
-                        GL.Vertex2(rect.X + rect.Width / div * i, rect.Y);
-                        GL.Vertex2(rect.X + rect.Width / div * i, rect.Y + rect.Height);
-
-                        GL.Vertex2(rect.X, rect.Y + rect.Height / div * i);
-                        GL.Vertex2(rect.X + rect.Width, rect.Y + rect.Height / div * i);
+                        GL.Vertex2(rect.X, rect.Y + 1 + rect.Height / div * (i - offset));
+                        GL.Vertex2(rect.X + rect.Width, rect.Y + 1 + rect.Height / div * (i - offset));
                     }
                     GL.End();
+                    /*
+                    var divisor = Settings.settings["quantumSnapping"].Value + 3f;
+                    var offset = Math.Round(divisor) % 2 == 0 ? 0.5f : 1f;
+
+                    for (int i = (int)(2 * offset); i <= divisor; i++)
+                    {
+                        var x = Rect.X + Rect.Width / divisor * (i - offset);
+                        var y = Rect.Y + Rect.Height / divisor * (i - offset);
+
+                        lines.AddRange(GLU.Line(x, Rect.Y, x, Rect.Y + Rect.Height, 1, 0.2f, 0.2f, 0.2f));
+                        lines.AddRange(GLU.Line(Rect.X, y, Rect.X + Rect.Width, y, 1, 0.2f, 0.2f, 0.2f));
+                    }*/
                 }
 
                 var fr = EditorWindow.Instance.FontRenderer;
@@ -113,10 +131,10 @@ namespace Sound_Space_Editor.Gui
                         var x = rect.X + tuple.Item1 * cellSize + cellSize / 2;
                         var y = rect.Y + tuple.Item2 * cellSize + cellSize / 2;
 
-                        var width = fr.GetWidth(letter, 38);
-                        var height = fr.GetHeight(38);
+                        var width = fr.GetWidth(letter, 29);
+                        var height = fr.GetHeight(29);
 
-                        fr.Render(letter, (int)(x - width / 2f), (int)(y - height / 2), 38);
+                        fr.Render(letter, (int)(x - width / 2f), (int)(y - height / 2), 29);
                     }
                 }
 
