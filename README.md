@@ -1,1 +1,1 @@
-Upgraded SSQE, Currently has: Colorset making in editor.
+Upgraded SSQE, Currently has: Colorset making in editor. Difficulty Calculator.
