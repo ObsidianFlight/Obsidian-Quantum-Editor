@@ -1619,7 +1619,6 @@ namespace Sound_Space_Editor
 									MusicPlayer.Pause();
 
 								var copied = ((List<Note>)Clipboard.GetData("notes")).ToList();
-
 								var lowest = copied.Min(n => n.Ms);
 
 								copied.ForEach(n =>
@@ -3333,6 +3332,7 @@ namespace Sound_Space_Editor
 							_notes[i].Color = EditorSettings.NoteColor1;
 					}
                 }
+				var copied = _notes.Select(n => n.Clone()).ToList();
 			}
 		}
 

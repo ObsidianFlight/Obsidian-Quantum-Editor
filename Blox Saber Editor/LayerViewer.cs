@@ -166,6 +166,8 @@ namespace Sound_Space_Editor
         public static void removeLayer(int layerNumber)
         {
             bool reset = false;
+            int layerNumberToKill = 999;
+            Layer layerToKill = new Layer(999, new List<Alternate>(), new List<Shift>(), 0);
             foreach (Layer layer in Colorset.layers)
             {
                 if (layer.LayerNumber == layerNumber)
@@ -178,28 +180,35 @@ namespace Sound_Space_Editor
                             note.Color = OpenTK.Graphics.Color4.White;
                         }
                     }
-                    Colorset.layers.Remove(layer);
+                    layerNumberToKill = layer.LayerNumber;
+                    layerToKill = layer;
                 }
-                if (layer.LayerNumber > layerNumber)
+                else if (layer.LayerNumber > layerNumber)
                 {
+                    SendNotesToLayer(layer.LayerNumber, layerNumber, true);
                     foreach(var note in EditorWindow.Instance.Notes._notes)
                     {
-                        if(note.layer == layer.LayerNumber)
+                        if (note.layer == layer.LayerNumber)
                         {
                             note.layer--;
                         }
                     }
                 }
-                if (layer == Colorset.layers[Colorset.layers.Count - 1])
+            }
+            Colorset.layers.Remove(layerToKill);
+
+            foreach(Layer layer in Colorset.layers)
+            {
+                if (layer.LayerNumber > layerNumberToKill)
                 {
-                    Colorset.DefaultColors();
-                    OrderList();
-                    return;
+                    layer.LayerNumber--;
+                    Colorset.VerifyNotes();
                 }
             }
+            
         }
 
-        private void SendNotesToLayer(int fromLayer, int toLayer, bool keepShift)
+        private static void SendNotesToLayer(int fromLayer, int toLayer, bool keepShift)
         {
             bool reset = false;
             foreach(Layer layer in Colorset.layers)
@@ -231,7 +240,6 @@ namespace Sound_Space_Editor
                 }
             }
             OrderList();
-            ResetList();
         }
 
         private void FadeButton_Click(object sender, EventArgs e)

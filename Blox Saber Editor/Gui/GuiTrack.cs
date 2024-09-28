@@ -141,8 +141,13 @@ namespace Sound_Space_Editor.Gui
 
 			var rendered = new List<int>();
 			long previousMS = 0;
+			int notesOnScreen = 0;
 			for (int i = 0; i < editor.Notes.Count; i++)
 			{
+				if (notesOnScreen > 2000)
+				{
+					//break;
+				}
 				Note note = EditorWindow.Instance.Notes[i];
 
 				if (editor.GuiScreen is GuiScreenEditor gse)
@@ -161,15 +166,17 @@ namespace Sound_Space_Editor.Gui
 				if (x > rect.Width)
 					break;
 
+				notesOnScreen++;
+
 				long distanceFromLast = 0;
 				if (i > 0)
 				{
 					distanceFromLast = previousMS - note.Ms;
 				}
 				previousMS = note.Ms;
-
+				//Console.WriteLine(distanceFromLast);
 				// Removed "rendered.Contains((int)x + 1)" because it was preventing meganotes from displaying.
-				if (x < rect.X - noteSize || rendered.Contains((int)x + 1) && distanceFromLast != 0 || rendered.Contains((int)x + 1) && distanceFromLast != 0 || rendered.Contains((int)x - 1) && distanceFromLast != 0)
+				if (x < rect.X - noteSize || rendered.Contains((int)x) && distanceFromLast != 0 || rendered.Contains((int)x + 1) || rendered.Contains((int)x - 1))
 					continue;
 
 				rendered.Add((int)x);
@@ -238,6 +245,13 @@ namespace Sound_Space_Editor.Gui
 				var numText = $"{(i + 1):##,###}";
 
 				var msText = $"{note.Ms:##,###}";
+				double difficultyNumber = 0;
+				if (i < GuiScreenEditor.Instance.difficultyInfo.NoteDifficulty.Length)
+                {
+					difficultyNumber = Math.Round(GuiScreenEditor.Instance.difficultyInfo.NoteDifficulty[i] / 5, 2);
+				}
+				
+				var difText = $"{difficultyNumber}"; 
 
 				if (msText == "")
 					msText = "0";
@@ -247,6 +261,9 @@ namespace Sound_Space_Editor.Gui
 
 				GL.Color3(Color2);
 				fr.Render($"{msText}ms", (int)x + 3, (int)(rect.Y + rect.Height + fr.GetHeight(16)) + 3 + 2, 16);
+
+				GL.Color3(Color3);
+				fr.Render($"{difText}", (int)x + 3, (int)(rect.Y + rect.Height + fr.GetHeight(16) + fr.GetHeight(16) + 3 + 4), 16);
 
 				//draw line
 				GL.Color4(1f, 1f, 1f, alphaMult);

@@ -14,12 +14,13 @@ namespace Sound_Space_Editor.Gui
 {
     class GuiScreenEditor : GuiScreen
 	{
+		public DifficultyCalculator.MapInfo difficultyInfo = new DifficultyCalculator.MapInfo();
 		public GuiScreen GuiScreen { get; private set; }
 
 		public static GuiScreenEditor Instance;
 
 		private List<GuiTextBox> Boxes = new List<GuiTextBox>();
-
+		public float difficulty = 0;
 		public readonly GuiGrid Grid = new GuiGrid(300, 300);
 		public readonly GuiTrack Track = new GuiTrack(0, 80);
 		public readonly GuiSlider Tempo;
@@ -37,6 +38,7 @@ namespace Sound_Space_Editor.Gui
 		public readonly GuiCheckBox GridNumbers;
 		public readonly GuiCheckBox GridLetters;
 		public readonly GuiCheckBox Quantum;
+		public readonly GuiButton CheckDifficulty;
 		public readonly GuiCheckBox Numpad;
 		public readonly GuiCheckBox AutoAdvance;
 		public readonly GuiCheckBox QuantumGridLines;
@@ -156,6 +158,7 @@ namespace Sound_Space_Editor.Gui
 
 		public GuiScreenEditor() : base(0, EditorWindow.Instance.ClientSize.Height - 64, EditorWindow.Instance.ClientSize.Width - 512 - 64, 64)
 		{
+			difficultyInfo.NoteDifficulty = new double[0];
 			Instance = this;
 
 			if (File.Exists(Path.Combine(EditorWindow.Instance.LauncherDir, "background_editor.png")))
@@ -367,6 +370,7 @@ namespace Sound_Space_Editor.Gui
 			ApplyShift = new GuiButton(39, 0, 0, 128, 32, "APPLY SHIFT", false);
 
 			OptionsNav = new GuiButton(15, 0, 0, 200, 50, "OPTIONS >", false);
+			CheckDifficulty = new GuiButton(50, 0, 0, 100, 25, "CHECK DIFFICULTY", false);
 			TimingNav = new GuiButton(16, 0, 0, 200, 50, "TIMING >", false);
 			PatternsNav = new GuiButton(17, 0, 0, 200, 50, "PATTERNS >", false);
 			ColorsNav = new GuiButton(22, 0, 0, 200, 50, "COLORS >", false);
@@ -499,6 +503,7 @@ namespace Sound_Space_Editor.Gui
 			Buttons.Add(DeleteColor);
 			Buttons.Add(SetNotes);
 			Buttons.Add(OptionsNav);
+			Buttons.Add(CheckDifficulty);
 			Buttons.Add(TimingNav);
 			Buttons.Add(PatternsNav);
 			Buttons.Add(ColorsNav);
@@ -637,12 +642,14 @@ namespace Sound_Space_Editor.Gui
 
 			if (Settings.Default.MeowMeowMeow)
             {
-				rl = true;
-            }
+				EditorWindow.Instance.inconspicuousvar = true;
+
+			}
             else
             {
-				rl = false;
-            }
+				EditorWindow.Instance.inconspicuousvar = false;
+
+			}
 
 			if (OptionsNavEnabled)
             {
@@ -652,7 +659,7 @@ namespace Sound_Space_Editor.Gui
 					fr.Render($"Twack Height~ {th}", (int)TrackHeight.ClientRectangle.Left - thw, (int)(inconspicuousCheckBox.ClientRectangle.Bottom + 10 * heightdiff), (int)Math.Min(24 * widthdiff, 24 * heightdiff));
 					fr.Render($"Cuwsow Pos~ {TrackCursorPos.Value}%", (int)TrackCursorPos.ClientRectangle.X, (int)(inconspicuousCheckBox.ClientRectangle.Bottom + 10 * heightdiff), (int)Math.Min(24 * widthdiff, 24 * heightdiff));
 					var arw = fr.GetWidth($"Appwoach Wate~ 00", (int)Math.Min(24 * widthdiff, 24 * heightdiff));
-					fr.Render($"Appwoach Wate~ {ar}", (int)ApproachRate.ClientRectangle.Left - arw, (int)(Quantum.ClientRectangle.Y + 10 * heightdiff), (int)Math.Min(24 * widthdiff, 24 * heightdiff));
+					fr.Render($"Appwoach Wate~ {ar}", (int)ApproachRate.ClientRectangle.Left - arw, (int)(Numpad.ClientRectangle.Y + 10 * heightdiff), (int)Math.Min(24 * widthdiff, 24 * heightdiff));
 				}
 				else
                 {
@@ -660,7 +667,7 @@ namespace Sound_Space_Editor.Gui
 					fr.Render($"Track Height: {th}", (int)TrackHeight.ClientRectangle.Left - thw, (int)(inconspicuousCheckBox.ClientRectangle.Bottom + 10 * heightdiff), (int)Math.Min(24 * widthdiff, 24 * heightdiff));
 					fr.Render($"Cursor Pos: {TrackCursorPos.Value}%", (int)TrackCursorPos.ClientRectangle.X, (int)(inconspicuousCheckBox.ClientRectangle.Bottom + 10 * heightdiff), (int)Math.Min(24 * widthdiff, 24 * heightdiff));
 					var arw = fr.GetWidth($"Approach Rate: 00", (int)Math.Min(24 * widthdiff, 24 * heightdiff));
-					fr.Render($"Approach Rate: {ar}", (int)ApproachRate.ClientRectangle.Left - arw, (int)(Quantum.ClientRectangle.Y + 10 * heightdiff), (int)Math.Min(24 * widthdiff, 24 * heightdiff));
+					fr.Render($"Approach Rate: {ar}", (int)ApproachRate.ClientRectangle.Left - arw, (int)(Numpad.ClientRectangle.Y + 10 * heightdiff), (int)Math.Min(24 * widthdiff, 24 * heightdiff));
 				}
 			}
 			if (rl)
@@ -723,16 +730,20 @@ namespace Sound_Space_Editor.Gui
                 {
 					int colorAmount = 0;
 					int layerNumber = 0;
+					int alternateNumber = 0;
+					int colorNumber = 0;
 					try 
 					{
 						layerNumber = Int32.Parse(LayerPicker.Text);
 						colorAmount = Colorset.ColorAmount(Int32.Parse(LayerPicker.Text));
+						alternateNumber = Int32.Parse(AlternatePicker.Text);
+						colorNumber = Int32.Parse(ColorPicker.Text);
 					}
 					catch { Console.WriteLine("Wrong Layer!"); }
 					List<OpenTK.Graphics.Color4> colorList = Colorset.ColorList(layerNumber);
 					try
 					{
-						if (Colorset.layers.Count >= Int32.Parse(LayerPicker.Text) + 1)
+						if (Colorset.layers.Count >= layerNumber + 1)
 						{
 							for (int i = 0; i < colorAmount; i++)
 							{
@@ -743,20 +754,66 @@ namespace Sound_Space_Editor.Gui
 								}
 								catch { }
 							}
-							for (int i = 0; i < Colorset.layers[Int32.Parse(LayerPicker.Text)].Alternates.Count; i++)
+							for (int i = 0; i < Colorset.layers[layerNumber].Alternates.Count; i++)
 							{
-								for (int k = 0; k < Colorset.layers[Int32.Parse(LayerPicker.Text)].Alternates[i].Colors.Count; k++)
+								for (int k = 0; k < Colorset.layers[layerNumber].Alternates[i].Colors.Count; k++)
 								{
 									try
 									{
-										GL.Color4(Colorset.layers[Int32.Parse(LayerPicker.Text)].Alternates[i].Colors[k]);
+										GL.Color4(Colorset.layers[layerNumber].Alternates[i].Colors[k]);
 										Glu.RenderQuad(OpenColorset.ClientRectangle.X + 232 + (i * 12), ColorsNav.ClientRectangle.Bottom + 10 + (k * 8), 10, 7);
 									}
 									catch { }
 								}
 							}
+                            if (Colorset.layers[layerNumber].Alternates.Count > alternateNumber - 1)
+                            {
+								var adjAlternateNumber = Math.Min(alternateNumber, Colorset.layers[layerNumber].Alternates.Count + 1);
+								adjAlternateNumber = Math.Max(adjAlternateNumber, 1);
+								var adjColorNumber = Math.Min(colorNumber, Colorset.layers[layerNumber].Alternates[alternateNumber - 1].Colors.Count + 1);
+								adjColorNumber = Math.Max(adjColorNumber, 1);
+								if (colorNumber < 1 || alternateNumber < 1)
+								{
+									OpenTK.Graphics.Color4 theColor = new OpenTK.Graphics.Color4(0, 0, 0, 0);
+									GL.Color4(theColor);
+								}
+								else
+								{
+									GL.Color4(OpenTK.Graphics.Color4.White);
+								}
+								Glu.RenderOutline(OpenColorset.ClientRectangle.X + 220 + (adjAlternateNumber * 12), ColorsNav.ClientRectangle.Bottom + 2 + (adjColorNumber * 8), 10, 7);
+							}
+							else
+                            {
+								var adjAlternateNumber = Colorset.layers[layerNumber].Alternates.Count + 1;
+								var adjColorNumber = 1;
+								if(colorNumber < 1 || alternateNumber < 1)
+                                {
+									OpenTK.Graphics.Color4 theColor = new OpenTK.Graphics.Color4(0, 0, 0, 0);
+									GL.Color4(theColor);
+									GL.Color4(OpenTK.Graphics.Color4.White);
+								}
+                                else
+                                {
+									GL.Color4(OpenTK.Graphics.Color4.White);
+								}
+								Glu.RenderOutline(OpenColorset.ClientRectangle.X + 220 + (adjAlternateNumber * 12), ColorsNav.ClientRectangle.Bottom + 2 + (adjColorNumber * 8), 10, 7);
+							}
 						}
-                    }
+                        else
+                        {
+							if (colorNumber < 1 || alternateNumber < 1)
+							{
+								OpenTK.Graphics.Color4 theColor = new OpenTK.Graphics.Color4(0, 0, 0, 0);
+								GL.Color4(theColor);
+							}
+							else
+							{
+								GL.Color4(OpenTK.Graphics.Color4.White);
+							}
+							Glu.RenderOutline(OpenColorset.ClientRectangle.X + 220 + 12, ColorsNav.ClientRectangle.Bottom + 2 + 8, 10, 7);
+						}
+					}
                     catch {}
                 }
 			}
@@ -819,7 +876,8 @@ namespace Sound_Space_Editor.Gui
 			GL.Color3(Color1);
 			fr.Render(timeString, (int)(rect.X + timelinePos.X - timeW / 2f + rect.Width - rect.Height), (int)(rect.Y + timelinePos.Y + 12), 20);
 			fr.Render(currentTimeString, (int)(rect.X + timelinePos.X - currentTimeW / 2f), (int)(rect.Y + timelinePos.Y + 12), 20);
-			fr.Render(currentMsString, (int)(rect.X + rect.Height / 2 + (rect.Width - rect.Height) * Timeline.Progress - currentMsW / 2f), (int)rect.Y, 20);
+			//fr.Render(currentMsString, (int)(rect.X + rect.Height / 2 + (rect.Width - rect.Height) * Timeline.Progress - currentMsW / 2f), (int)rect.Y, 20);
+			fr.Render($"Difficulty: {difficultyInfo.OverallDifficulty}", (int)(Quantum.ClientRectangle.Left), (int)(Quantum.ClientRectangle.Bottom + 30 * heightdiff), 20);
 
 			base.Render(delta, mouseX, mouseY);
 
@@ -1044,7 +1102,6 @@ namespace Sound_Space_Editor.Gui
 			ApproachSquares.Visible = false;
 			GridNumbers.Visible = false;
 			GridLetters.Visible = false;
-			Quantum.Visible = false;
 			Numpad.Visible = false;
 			QuantumGridLines.Visible = false;
 			QuantumGridSnap.Visible = false;
@@ -1118,7 +1175,6 @@ namespace Sound_Space_Editor.Gui
 				ApproachSquares.Visible = true;
 				GridNumbers.Visible = true;
 				GridLetters.Visible = true;
-				Quantum.Visible = true;
 				Numpad.Visible = true;
 				QuantumGridLines.Visible = true;
 				QuantumGridSnap.Visible = true;
@@ -1724,9 +1780,15 @@ namespace Sound_Space_Editor.Gui
 							Colorset.VerifyNotes();
 						}
 						break;
+					case 50:
+						//CHECK DIFFICULTY
+						difficultyInfo = DifficultyCalculator.ConvertMapNew(EditorWindow.Instance.Notes._notes, 1);
+						break;
 				}
 			}
             catch { }
+
+
 		}
 
 		public override void OnResize(Size size)
@@ -1842,6 +1904,7 @@ namespace Sound_Space_Editor.Gui
 			MSBoundLower.ClientRectangle.Size = new SizeF(192 * widthdiff, 40 * heightdiff);
 			MSBoundHigher.ClientRectangle.Size = MSBoundLower.ClientRectangle.Size;
 			SelectBound.ClientRectangle.Size = MSBoundLower.ClientRectangle.Size;
+			CheckDifficulty.ClientRectangle.Size = SelectBound.ClientRectangle.Size;
 			
 
 			OptionsNav.ClientRectangle.Location = new PointF(10 * widthdiff, Track.ClientRectangle.Bottom + 60);
@@ -1862,8 +1925,8 @@ namespace Sound_Space_Editor.Gui
 			ApproachSquares.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, Autoplay.ClientRectangle.Bottom + 10 * heightdiff);
 			GridNumbers.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, ApproachSquares.ClientRectangle.Bottom + 10 * heightdiff);
 			GridLetters.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, GridNumbers.ClientRectangle.Bottom + 10 * heightdiff);
-			Quantum.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, GridLetters.ClientRectangle.Bottom + 10 * heightdiff);
-			Numpad.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, Quantum.ClientRectangle.Bottom + 10 * heightdiff);
+			Quantum.ClientRectangle.Location = new PointF(NoteAlign.ClientRectangle.X + 20 * widthdiff, NoteAlign.ClientRectangle.Bottom + 30 * heightdiff);
+			Numpad.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, GridLetters.ClientRectangle.Bottom + 10 * heightdiff);
 			QuantumGridLines.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, Numpad.ClientRectangle.Bottom + 10 * heightdiff);
 			QuantumGridSnap.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, QuantumGridLines.ClientRectangle.Bottom + 10 * heightdiff);
 			Metronome.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, QuantumGridSnap.ClientRectangle.Bottom + 10 * heightdiff);
@@ -1926,6 +1989,7 @@ namespace Sound_Space_Editor.Gui
 			MSBoundHigher.ClientRectangle.Location = new PointF(SelectBound.ClientRectangle.X, SelectBound.ClientRectangle.Top - MSBoundHigher.ClientRectangle.Height - 10 * heightdiff);
 			MSBoundLower.ClientRectangle.Location = new PointF(SelectBound.ClientRectangle.X, MSBoundHigher.ClientRectangle.Top - MSBoundLower.ClientRectangle.Height - 10 * heightdiff);
 
+			CheckDifficulty.ClientRectangle.Location = new PointF(Quantum.ClientRectangle.X, Quantum.ClientRectangle.Bottom + 60 * heightdiff);
 
 			HideShowElements();
 		}

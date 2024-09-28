@@ -138,6 +138,7 @@
     <Compile Include="BPMTapper.Designer.cs">
       <DependentUpon>BPMTapper.cs</DependentUpon>
     </Compile>
+    <Compile Include="DifficultyCalculator.cs" />
     <Compile Include="Colorset.cs" />
     <Compile Include="EditorSettings.cs" />
     <Compile Include="LayerViewer.cs">

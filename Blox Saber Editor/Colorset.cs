@@ -315,6 +315,13 @@ namespace Sound_Space_Editor
                             if(alternates.Colors.Count == 0)
                             {
                                 layer.Alternates.Remove(alternates);
+                                foreach(var alternates2 in layer.Alternates)
+                                {
+                                    if(alternates2 != alternates)
+                                    {
+                                        alternates2.AlternateNumber = alternates2.AlternateNumber - 1;
+                                    }
+                                }
                             }
                             if(layer.Alternates.Count == 0)
                             {
@@ -330,31 +337,31 @@ namespace Sound_Space_Editor
 
         public static void DefaultColors()
         {
-            Console.WriteLine("Start of Default Colors");
+            //Console.WriteLine("Start of Default Colors");
             if(layers.Count == 0)
             {
-                Console.WriteLine("Adding Layer Zero");
+                //Console.WriteLine("Adding Layer Zero");
                 AddLayer(0);
             }
-            Console.WriteLine("Before Foreach in Default Colors");
+            //Console.WriteLine("Before Foreach in Default Colors");
             foreach(Layer layer in layers)
             {
                 if (layer.Alternates.Count == 0)
                 {
-                    Console.WriteLine("Adding First Alternate");
+                    //Console.WriteLine("Adding First Alternate");
                     AddAlternate(layer.LayerNumber, 0);
                 }
-                Console.WriteLine("Before Second Foreach in Default Colors");
+                //Console.WriteLine("Before Second Foreach in Default Colors");
                 foreach (Alternate alternate in layer.Alternates)
                 {
                     if(alternate.Colors.Count == 0)
                     {
-                        Console.WriteLine("Adding First Color");
+                        //Console.WriteLine("Adding First Color");
                         AddColor(layer.LayerNumber, alternate.AlternateNumber, 0, currentColor);
                     }
                 }
             }
-            Console.WriteLine("End of Default Colors");
+            //Console.WriteLine("End of Default Colors");
         }
 
         public static List<Color4> ColorList(int theLayer)
@@ -385,29 +392,29 @@ namespace Sound_Space_Editor
         {
             List<Color4> theList = new List<Color4>();
             Layer theLayer = FadeColorList(layer);
-            Console.WriteLine($"True Color Start!");
-            Console.WriteLine(theLayer.LayerNumber);
+            //Console.WriteLine($"True Color Start!");
+            //Console.WriteLine(theLayer.LayerNumber);
             foreach(var alternate in theLayer.Alternates)
             {
-                Console.WriteLine("Alternate");
+                //Console.WriteLine("Alternate");
                 foreach(var color in alternate.Colors)
                 {
-                    Console.WriteLine($"{color.R} {color.G} {color.B}");
+                    //Console.WriteLine($"{color.R} {color.G} {color.B}");
                 }
             }
             try
             {
                 int colorAmount = 0;
                 colorAmount = ColorAmountLayer(theLayer);
-                Console.WriteLine($"Color Amount: {colorAmount}");
+                //Console.WriteLine($"Color Amount: {colorAmount}");
                 for (int i = 0; i < colorAmount; i++)
                 {
                     int alternateNumber = i % theLayer.Alternates.Count;
-                    Console.WriteLine($"Current Layer: {layer.LayerNumber}");
-                    Console.WriteLine($"Layer Alternate Amount: {theLayer.Alternates.Count}");
-                    Console.WriteLine($"Colors in Current Alternate: {theLayer.Alternates[alternateNumber].Colors.Count}");
-                    Console.WriteLine($"Int I = {i}");
-                    Console.WriteLine($"Current Alternate: {alternateNumber}");
+                    //Console.WriteLine($"Current Layer: {layer.LayerNumber}");
+                    //Console.WriteLine($"Layer Alternate Amount: {theLayer.Alternates.Count}");
+                    //Console.WriteLine($"Colors in Current Alternate: {theLayer.Alternates[alternateNumber].Colors.Count}");
+                    //Console.WriteLine($"Int I = {i}");
+                    //Console.WriteLine($"Current Alternate: {alternateNumber}");
                     int colorNumber = 0;
                     if(theLayer.Alternates.Count == 1)
                     {
@@ -417,13 +424,13 @@ namespace Sound_Space_Editor
                     {
                         colorNumber = ((int)Math.Floor((double)i / theLayer.Alternates.Count)) % theLayer.Alternates[alternateNumber].Colors.Count;
                     }
-                    Console.WriteLine(colorNumber);
-                    Console.WriteLine("");
+                    //Console.WriteLine(colorNumber);
+                    //Console.WriteLine("");
                     theList.Add(theLayer.Alternates[alternateNumber].Colors[colorNumber]);
                 }
             }
             catch { }
-            Console.WriteLine("True Color End!");
+            //Console.WriteLine("True Color End!");
             return theList;
         }
 
@@ -456,7 +463,7 @@ namespace Sound_Space_Editor
             }
             if (layer == 0)
             {
-                Console.WriteLine("Layer 0!");
+                //Console.WriteLine("Layer 0!");
                 int i = 0;
                 Colors[0] = TrueColorList(layers[0]);
                 //Console.WriteLine($"Layer0set Color: {Colors[0].Count}");
@@ -492,7 +499,7 @@ namespace Sound_Space_Editor
 
         public static void SetupColorset()
         {
-            Console.WriteLine("Setting Up Colorset!");
+            //Console.WriteLine("Setting Up Colorset!");
             for (int i = 0; i < Colors.Length; i++)
             {
                 Colors[i].Clear();
@@ -506,7 +513,7 @@ namespace Sound_Space_Editor
                 trueColorList[i] = TrueColorList(layers[i]);
             }
             Colors = trueColorList;
-            Console.WriteLine("Finished Setting Up Colorset!");
+            //Console.WriteLine("Finished Setting Up Colorset!");
             EditorWindow.Instance.Notes.Sort();
         }
     }
@@ -567,7 +574,7 @@ namespace Sound_Space_Editor
         //Because I ended up scrapping a lot of the stuff I made for it, but this thing needed to stay since it's like a quarter of the program.
         public static List<Color4> FadeColor(Alternate alternate, int divisor)
         {
-            Console.WriteLine("Fade Color Start!");
+            //Console.WriteLine("Fade Color Start!");
             List<string> hexOutput = new List<string>();
             List<Color4> color4Output = new List<Color4>();
             for (int i = 0; i < alternate.Colors.Count; i++)
@@ -600,33 +607,33 @@ namespace Sound_Space_Editor
                     color2[2] = alternate.Colors[i].B * 255;
                 }
                 //Console.WriteLine(divisor);
-                Console.WriteLine($"{color1[0]}, {color1[1]}, {color1[2]}. {color2[0]}, {color2[1]}, {color2[2]}");
+                //Console.WriteLine($"{color1[0]}, {color1[1]}, {color1[2]}. {color2[0]}, {color2[1]}, {color2[2]}");
                 for (int j = 0; j <= divisor; j++)
                 {
                     double Ored = 0;
                     double Ogreen = 0;
                     double Oblue = 0;
-                    if (color1[0] - color2[0] > 0) { Ored = ((color1[0] - color2[0]) / (divisor + 1) * j) + color2[0]; Console.WriteLine("Red Color1 Bigger"); /* Color1 Bigger */ }
-                    else if (color1[0] - color2[0] < 0) { Ored = ((color1[0] - color2[0]) / (divisor + 1) * j) + color2[0]; Console.WriteLine("Red Color2 Bigger"); /* Color2 Bigger */ }
-                    else {Ored = color1[0]; Console.WriteLine("Red Same Size"); /* Same Size */ }
+                    if (color1[0] - color2[0] > 0) { Ored = ((color1[0] - color2[0]) / (divisor + 1) * j) + color2[0]; }
+                    else if (color1[0] - color2[0] < 0) { Ored = ((color1[0] - color2[0]) / (divisor + 1) * j) + color2[0]; }
+                    else {Ored = color1[0]; }
 
-                    if (color1[1] - color2[1] > 0) { Ogreen = ((color1[1] - color2[1]) / (divisor + 1) * j) + color2[1]; Console.WriteLine("Green Color1 Bigger"); /* Bigger First */ }
-                    else if (color1[1] - color2[1] < 0) { Ogreen = ((color1[1] - color2[1]) / (divisor + 1) * j) + color2[1]; Console.WriteLine("Green Color2 Bigger"); /* Bigger Last */ }
-                    else { Ogreen = color1[1]; Console.WriteLine("Green Same Size"); /* Same Size */ }
+                    if (color1[1] - color2[1] > 0) { Ogreen = ((color1[1] - color2[1]) / (divisor + 1) * j) + color2[1]; }
+                    else if (color1[1] - color2[1] < 0) { Ogreen = ((color1[1] - color2[1]) / (divisor + 1) * j) + color2[1]; }
+                    else { Ogreen = color1[1]; }
 
-                    if (color1[2] - color2[2] > 0) { Oblue = ((color1[2] - color2[2]) / (divisor + 1) * j) + color2[2]; Console.WriteLine("Blue Color1 Bigger"); /* Bigger First */ }
-                    else if (color1[2] - color2[2] < 0) { Oblue = ((color1[2] - color2[2]) / (divisor + 1) * j) + color2[2]; Console.WriteLine("Blue Color2 Bigger"); /* Bigger Last */ }
-                    else { Oblue = color1[2]; Console.WriteLine("Blue Same Size"); /* Same Size */ }
+                    if (color1[2] - color2[2] > 0) { Oblue = ((color1[2] - color2[2]) / (divisor + 1) * j) + color2[2]; }
+                    else if (color1[2] - color2[2] < 0) { Oblue = ((color1[2] - color2[2]) / (divisor + 1) * j) + color2[2]; }
+                    else { Oblue = color1[2]; }
                     int Ired = (int)Ored;
                     int Igreen = (int)Ogreen;
                     int Iblue = (int)Oblue;
                     string Hred = Ired.ToString("X2");
                     string Hgreen = Igreen.ToString("X2");
                     string Hblue = Iblue.ToString("X2");
-                    Console.WriteLine(j);
-                    Console.WriteLine($"{Ored}, {Ogreen}, {Oblue}");
-                    Console.WriteLine($"{Ired}, {Igreen}, {Iblue}");
-                    Console.WriteLine("#" + Hred + Hgreen + Hblue);
+                    //Console.WriteLine(j);
+                    //Console.WriteLine($"{Ored}, {Ogreen}, {Oblue}");
+                    //Console.WriteLine($"{Ired}, {Igreen}, {Iblue}");
+                    //Console.WriteLine("#" + Hred + Hgreen + Hblue);
                     hexOutput.Add("#" + Hred + Hgreen + Hblue);
                 }
             }
@@ -634,7 +641,7 @@ namespace Sound_Space_Editor
             {
                 color4Output.Add(HexColor.HextoColor4(hexNumber));
             }
-            Console.WriteLine("Fade Color End!");
+            //Console.WriteLine("Fade Color End!");
             return color4Output;
         }
     }
