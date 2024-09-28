@@ -1,19 +1,65 @@
+Changelog 1.10 - 9/28/2024 --
+ Additions
+     Difficulty Calculator
+          When you press the button, it calculates the overall map difficulty.
+          It also puts the difficulty in a red color under each note, calculated based on a lot of things but most importantly: the notes behind it, if you are curious why they look too high or too low sometimes, that is the reason.
+ Removals
+     Jump to MS is gone, dunno why that was there.
+     The text that told you to look up how to use the features is gone, as it is obvious. (Really, why did I put that there?)
+     Set Comparison Button. (It is now always active.)
+     Delete/Add Alternate Button 
+          It now places colors on alternates based on the alternates textbox.
+          This also means that you can't insert alternates anymore, I believe this drawback is necessary for simplicity.
+     Confirm Delete Button
+          I'm sure that you know what you're doing when you press delete!
+          Please don't misclick the button, whatever you do!
+ Major Changes
+     Streamlined the process of using layers and assigning notes to them
+          Layers no longer have to be created in the menu, it will just be a place for showing that you have them.
+          You can still create layers using the menu, if you desire.
+          You can now assign notes to a layer using a keybind. (Default: F)
+     Add/Delete Color now works more intuitively
+          Selecting a color with the text boxes now shows a highlight where you are pointing at to show where it will place the color.
+          Adding/Deleting notes will create and delete layers/alternates for you.
+     Fixed the quantum snapping.
+          It used to be linked to the top left note, now it works just like 2.0 editor. (I stole the code, I hope you don't mind.)
+     Fixed Layer 0 fade for REAL this time.
+          I didn't notice the problem at first and almost didn't fix it!
+          The fade started on the note right before the second color
+           which was hard to notice since I wasn't trying to do anything with purpose.
+          It works properly now, so do not worry.
+     When clicking on a text box, the text is now deleted automatically.
+          If you click off without typing anything, it will return to what it was before you clicked.
+          This is done because in no circumstance when clicking on those boxes have I wanted to NOT delete the text.
+          Sometimes I just want to add, but typing numbers is faster overall than deleting them.
+          Note: You will have to type the # for hexcodes manually but that shouldn't be too much trouble since most of the time the copy paste has it anyway.
+ Minor Changes
+     Made the waveform line 1.4 size instead of 2 because it felt too fuzzy.
+     Made the size of the keybinds in the grid 0.75x size.
+     Made the timeline less laggy (It rendered a quad for EVERY NOTE?? now it only does it if it can't render one on that pixel.)
+     Made the timeline color based on what color the note is. (This adds a little lag back, sorry not sorry it looks kinda neat.)
+     Moved the SFX Offset box to the Timing section in the editor, where it should be.
+     Made the colors of the grid closer to 2.0 editor since I like those more.
+     Made the quantum lines actually work properly. (like avi's editor :D)
+     Made the color sliders default to 255 when opening instead of being in the middle.
+     Made the color textboxes default to 255 when opening instead of being 0.
+
 ----------------------------------
-	 -- 1.9.1 : whoops - 7/22/2024 --
+     -- 1.9.1 : whoops - 7/22/2024 --
 
 - fixed the horrendous lag when using more than ~1000 notes
-		  - it was like 2 lines of code I removed for fun, I'm so sorry...
+     - it was like 2 lines of code I removed for fun, I'm so sorry...
 - supposedly fade for layer 0 didn't work but it works and I didn't fix it so I'm putting this here anyway.
 
 ----------------------------------
-	 -- 1.9 : i am the king! - 5/28/2024 --
+     -- 1.9 : i am the king! - 5/28/2024 --
 
 I (Obsiid) am in charge of this version now. Please direct any problems with this to me and nobody else.
 
 - added a way to create colorsets in the editor, 
-		  - no more going back and forth between programs and playtesting over and over!
-		  - it's a little clunky!
-		  - but it works!
+     - no more going back and forth between programs and playtesting over and over!
+     - it's a little clunky!
+     - but it works!
 
 ----------------------------------
      -- 1.8.5.5 : monkey brain - 24/02/2022 --
