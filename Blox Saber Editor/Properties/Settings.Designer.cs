@@ -244,6 +244,21 @@ namespace Sound_Space_Editor.Properties {
 
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool RhythiaPath
+        {
+            get
+            {
+                return ((bool)(this["RhythiaPath"]));
+            }
+            set
+            {
+                this["RhythiaPath"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("16")]
         public int TrackHeight {
             get {

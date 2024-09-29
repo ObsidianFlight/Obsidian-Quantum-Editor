@@ -102,7 +102,7 @@ namespace Sound_Space_Editor
         public string ActualAudioPath = "";
         public string ActualAudioSafe = "";
 
-        private string _soundId = "-1";
+        public string _soundId = "-1";
 		public float tempo = 1f;
 		public TimeSpan currentTime;
 		public TimeSpan totalTime;
@@ -184,61 +184,7 @@ namespace Sound_Space_Editor
 
 		void CheckForUpdates()
         {
-			/*
-			var versionInfo = FileVersionInfo.GetVersionInfo(Application.ExecutablePath);
-			currentEditorVersion = versionInfo.FileVersion;
-
-			try
-            {
-				WebClient wc = new WebClient();
-				string reply = wc.DownloadString("https://raw.githubusercontent.com/David20122/SSQEUpdater/main/version");
-				string trimmedReply = reply.TrimEnd();
-				downloadedVersionString = trimmedReply;
-
-				if (currentEditorVersion != downloadedVersionString)
-				{
-					object[] settings = {
-						Settings.Default.MasterVolume,
-						Settings.Default.SFXVolume,
-						Settings.Default.GridNumbers,
-						Settings.Default.ApproachSquares,
-						Settings.Default.AnimateBackground,
-						Settings.Default.Autoplay,
-						Settings.Default.BGDim,
-						Settings.Default.Quantum,
-						Settings.Default.AutoAdvance,
-						Settings.Default.SfxOffset,
-						Settings.Default.Numpad,
-						Settings.Default.QuantumGridLines,
-						Settings.Default.QuantumGridSnap,
-						Settings.Default.Metronome,
-						Settings.Default.LegacyBPM,
-						Settings.Default.SeparateClickTools,
-						Settings.Default.AutosavedFile.Replace(',', '&'),
-						Settings.Default.TrackHeight,
-						Settings.Default.CurveBezier,
-						Settings.Default.LastFile.Replace(' ', '>').Replace(',', '<'),
-						Settings.Default.GridLetters,
-						Settings.Default.CursorPos,
-						Settings.Default.SelectTool,
-						Settings.Default.ApproachRate,
-					};
-
-					try
-					{
-						Process.Start("SSQEUpdater.exe", string.Join(" ", settings));
-						Environment.Exit(0);
-					}
-					catch
-					{
-						//MessageBox.Show("Failed to locate 'SSQEUpdater.exe'\nDid you rename or move the file?", "", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-					}
-				}
-			} 
-			catch
-            {
-				MessageBox.Show("Failed to check for updates", "", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }*/
+			
 		}
 
 		public void UpdateColors()
@@ -3011,7 +2957,7 @@ namespace Sound_Space_Editor
 		}
 
 
-		private bool WriteFile(string file)
+		public bool WriteFile(string file)
 		{
 			if (file == null)
 				return false;

@@ -42,6 +42,7 @@ namespace Sound_Space_Editor.Gui
 		private GuiCheckBox AutosaveCheckbox;
 		private GuiTextBox AutosaveInterval;
 
+		private GuiButton RhythiaPath = new GuiButton(10, 0, 0, 200, 50, "RHYTHIA PATH", "square", 100);
 		private GuiCheckBox CorrectOnCopy;
 
 		public GuiScreenSettings() : base(0, 0, EditorWindow.Instance.ClientSize.Width, EditorWindow.Instance.ClientSize.Height)
@@ -101,6 +102,7 @@ namespace Sound_Space_Editor.Gui
 			Buttons.Add(Color1Picker);
 			Buttons.Add(Color2Picker);
 			Buttons.Add(Color3Picker);
+			Buttons.Add(RhythiaPath);
 			Buttons.Add(NoteColor1Picker);
 			Buttons.Add(NoteColor2Picker);
 
@@ -165,6 +167,7 @@ namespace Sound_Space_Editor.Gui
 				fr.Render("Track Opacity:", (int)TrackOpacityTextBox.ClientRectangle.X, (int)TrackOpacityTextBox.ClientRectangle.Y - 26, 24);
 
 				fr.Render("Autosave Interval (min):", (int)AutosaveInterval.ClientRectangle.X, (int)AutosaveInterval.ClientRectangle.Y - 26, 24);
+				fr.Render($"{EditorSettings.RhythiaPath}", (int)RhythiaPath.ClientRectangle.X, (int)RhythiaPath.ClientRectangle.Y - 26, 24);
 			}
 
 			EditorBGOpacityTextBox.Render(delta, mouseX, mouseY);
@@ -199,10 +202,12 @@ namespace Sound_Space_Editor.Gui
 			Color1Picker.ClientRectangle.Location = new PointF(160 * widthdiff, 210 * heightdiff);
 			Color2Picker.ClientRectangle.Location = new PointF(160 * widthdiff, 360 * heightdiff);
 			Color3Picker.ClientRectangle.Location = new PointF(160 * widthdiff, 510 * heightdiff);
+			RhythiaPath.ClientRectangle.Location = new PointF(1435 * widthdiff, 840 * heightdiff);
 
 			Color1Picker.ClientRectangle.Size = new SizeF(200 * widthdiff, 50 * heightdiff);
 			Color2Picker.ClientRectangle.Size = new SizeF(200 * widthdiff, 50 * heightdiff);
 			Color3Picker.ClientRectangle.Size = new SizeF(200 * widthdiff, 50 * heightdiff);
+			RhythiaPath.ClientRectangle.Size = new SizeF(200 * widthdiff, 50 * heightdiff);
 
 			NoteColor1Picker.ClientRectangle.Location = new PointF(160 * widthdiff, 660 * heightdiff);
 			NoteColor2Picker.ClientRectangle.Location = new PointF(160 * widthdiff, 810 * heightdiff);
@@ -501,6 +506,20 @@ namespace Sound_Space_Editor.Gui
 					EditorSettings.EnableAutosave = AutosaveCheckbox.Toggle;
 					EditorSettings.CorrectOnCopy = CorrectOnCopy.Toggle;
 					EditorWindow.Instance.UpdateColors();
+					break;
+				case 10:
+					using (var ofd = new OpenFileDialog
+					{
+						Title = "Select Rhythia Exe",
+						Filter = "Executable Files (*.exe)|*.exe"
+					})
+					{
+						var result = ofd.ShowDialog();
+						if (result == DialogResult.OK)
+						{
+							EditorSettings.RhythiaPath = ofd.FileName;
+						}
+					}
 					break;
 			}
 			base.OnButtonClicked(id);

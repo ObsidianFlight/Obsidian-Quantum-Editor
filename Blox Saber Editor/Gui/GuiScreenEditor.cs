@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace Sound_Space_Editor.Gui
 {
@@ -102,6 +103,7 @@ namespace Sound_Space_Editor.Gui
 		public readonly GuiButton TimingNav;
 		public readonly GuiButton PatternsNav;
 		public readonly GuiButton ColorsNav;
+		public readonly GuiButton Playtest;
 
 		public readonly GuiTextBox ScaleBox;
 		public readonly GuiButton ScaleButton;
@@ -374,6 +376,7 @@ namespace Sound_Space_Editor.Gui
 			TimingNav = new GuiButton(16, 0, 0, 200, 50, "TIMING >", false);
 			PatternsNav = new GuiButton(17, 0, 0, 200, 50, "PATTERNS >", false);
 			ColorsNav = new GuiButton(22, 0, 0, 200, 50, "COLORS >", false);
+			Playtest = new GuiButton(51, 0, 0, 200, 50, "TEST MAP", false);
 
 			SelectBound = new GuiButton(19, 0, 0, 64, 32, "SELECT", false);
 
@@ -507,6 +510,7 @@ namespace Sound_Space_Editor.Gui
 			Buttons.Add(TimingNav);
 			Buttons.Add(PatternsNav);
 			Buttons.Add(ColorsNav);
+			Buttons.Add(Playtest);
 			Buttons.Add(ScaleButton);
 			Buttons.Add(TrackHeight);
 			Buttons.Add(TrackCursorPos);
@@ -1096,6 +1100,7 @@ namespace Sound_Space_Editor.Gui
 			TimingNav.ClientRectangle.Y = OptionsNav.ClientRectangle.Bottom + 10 * heightdiff;
 			PatternsNav.ClientRectangle.Y = TimingNav.ClientRectangle.Bottom + 10 * heightdiff;
 			ColorsNav.ClientRectangle.Y = PatternsNav.ClientRectangle.Bottom + 10 * heightdiff;
+			Playtest.ClientRectangle.Y = ColorsNav.ClientRectangle.Bottom + 10 * heightdiff;
 
 			//options
 			Autoplay.Visible = false;
@@ -1189,6 +1194,7 @@ namespace Sound_Space_Editor.Gui
 				TimingNav.ClientRectangle.Y = TrackCursorPos.ClientRectangle.Bottom + 20 * heightdiff;
 				PatternsNav.ClientRectangle.Y = TimingNav.ClientRectangle.Bottom + 10 * heightdiff;
 				ColorsNav.ClientRectangle.Y = PatternsNav.ClientRectangle.Bottom + 10 * heightdiff;
+				Playtest.ClientRectangle.Y = ColorsNav.ClientRectangle.Bottom + 10 + heightdiff;
 
 				OptionsNav.Text = "OPTIONS <";
 			}
@@ -1203,6 +1209,7 @@ namespace Sound_Space_Editor.Gui
 
 				PatternsNav.ClientRectangle.Y = OpenBookmarks.ClientRectangle.Bottom + 20 * heightdiff;
 				ColorsNav.ClientRectangle.Y = PatternsNav.ClientRectangle.Bottom + 10 * heightdiff;
+				Playtest.ClientRectangle.Y = ColorsNav.ClientRectangle.Bottom + 10 * heightdiff;
 
 				TimingNav.Text = "TIMING <";
 			}
@@ -1223,6 +1230,7 @@ namespace Sound_Space_Editor.Gui
 				ScaleButton.Visible = true;
 
 				ColorsNav.ClientRectangle.Y = ScaleButton.ClientRectangle.Bottom + 20 * heightdiff;
+				Playtest.ClientRectangle.Y = ColorsNav.ClientRectangle.Bottom + 10 * heightdiff;
 
 				PatternsNav.Text = "PATTERNS <";
 			}
@@ -1255,6 +1263,8 @@ namespace Sound_Space_Editor.Gui
 				ShiftLevel.Visible = true;
 				ShiftDefault.Visible = true;
 				ApplyShift.Visible = true;
+
+				Playtest.ClientRectangle.Y = ApplyShift.ClientRectangle.Bottom + 20 * heightdiff;
 
 				ColorsNav.Text = "COLORS <";
             }
@@ -1784,6 +1794,20 @@ namespace Sound_Space_Editor.Gui
 						//CHECK DIFFICULTY
 						difficultyInfo = DifficultyCalculator.ConvertMapNew(EditorWindow.Instance.Notes._notes, 1);
 						break;
+					case 51:
+						if (EditorWindow.Instance.MusicPlayer.IsPlaying)
+							EditorWindow.Instance.MusicPlayer.Pause();
+						
+						EditorWindow.Instance.WriteFile($"{Directory.GetCurrentDirectory()}\\assets\\temp\\tempmap.txt");
+
+						string[] args =
+						{
+							$"--a=\"{Path.GetFullPath($"{EditorWindow.Instance.ActualAudioPath}").Replace("\\", "/")}\"",
+							$"--t=\"{Path.GetFullPath($"{Directory.GetCurrentDirectory()}\\assets\\temp\\tempmap.txt").Replace("\\", "/")}\""
+						};
+
+						Process.Start(EditorSettings.RhythiaPath, string.Join(" ", args));
+						break;
 				}
 			}
             catch { }
@@ -1832,6 +1856,7 @@ namespace Sound_Space_Editor.Gui
 			TimingNav.ClientRectangle.Size = OptionsNav.ClientRectangle.Size;
 			PatternsNav.ClientRectangle.Size = OptionsNav.ClientRectangle.Size;
 			ColorsNav.ClientRectangle.Size = OptionsNav.ClientRectangle.Size;
+			Playtest.ClientRectangle.Size = OptionsNav.ClientRectangle.Size;
 
 			//timing
 			Offset.ClientRectangle.Size = new SizeF(128 * widthdiff, 40 * heightdiff);
@@ -1911,6 +1936,7 @@ namespace Sound_Space_Editor.Gui
 			TimingNav.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, OptionsNav.ClientRectangle.Bottom + 10 * heightdiff);
 			PatternsNav.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, TimingNav.ClientRectangle.Bottom + 10 * heightdiff);
 			ColorsNav.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, PatternsNav.ClientRectangle.Bottom + 10 * heightdiff);
+			Playtest.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, ColorsNav.ClientRectangle.Bottom + 10 * heightdiff);
 
 			//timing
 			Offset.ClientRectangle.Location = new PointF(OptionsNav.ClientRectangle.X, TimingNav.ClientRectangle.Bottom + 40 * heightdiff);

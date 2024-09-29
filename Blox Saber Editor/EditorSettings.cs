@@ -52,6 +52,7 @@ namespace Sound_Space_Editor
 		public static GridKeySet GridKeys = new GridKeySet() { TL = Key.Q, TC = Key.W, TR = Key.E, ML = Key.A, MC = Key.S, MR = Key.D, BL = Key.Z, BC = Key.X, BR = Key.C };
 
 		public static KeyType SetNotesColor = new KeyType() { Key = Key.F, CTRL = false, SHIFT = false, ALT = false };
+		public static string RhythiaPath = "";
 
 		public static string Pattern0 = "";
 		public static string Pattern1 = "";
@@ -109,6 +110,8 @@ namespace Sound_Space_Editor
                     Sensitivity = value;
                 if (result.TryGetValue("parallax", out value))
                     Parallax = value;
+				if (result.TryGetValue("RhythiaPath", out value))
+					RhythiaPath = value;
 
                 if (result.TryGetValue("keybinds", out value))
                 {
@@ -223,6 +226,7 @@ namespace Sound_Space_Editor
 			ApproachDistance = 4;
 			Sensitivity = 1;
 			Parallax = 0;
+			RhythiaPath = "";
 		}	
 
 		public static void RefreshKeymapping()
@@ -279,6 +283,7 @@ namespace Sound_Space_Editor
                 {"approachDistance",ApproachDistance},
                 {"sensitivity",Sensitivity},
                 {"parallax",Parallax},
+				{"RhythiaPath",RhythiaPath},
                 {"keybinds", new JsonObject(Array.Empty<KeyValuePair<string, JsonValue>>()) {
 					{"selectAll", new JsonArray(SelectAll.Key.ToString(), SelectAll.CTRL, SelectAll.SHIFT, SelectAll.ALT)},
 					{"save", new JsonArray(Save.Key.ToString(), Save.CTRL, Save.SHIFT, Save.ALT)},
