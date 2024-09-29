@@ -2,7 +2,8 @@ Changelog 1.10 - 9/28/2024 --
  Additions
      Difficulty Calculator
           When you press the button, it calculates the overall map difficulty.
-          It also puts the difficulty in a red color under each note, calculated based on a lot of things but most importantly: the notes behind it, if you are curious why they look too high or too low sometimes, that is the reason.
+          It also puts the difficulty in a red color under each note, calculated based on a lot of things but most importantly:
+                       the notes behind it, if you are curious why they look too high or too low sometimes, that is the reason.
  Removals
      Jump to MS is gone, dunno why that was there.
      The text that told you to look up how to use the features is gone, as it is obvious. (Really, why did I put that there?)
